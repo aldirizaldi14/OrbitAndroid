@@ -1,32 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-void main() => runApp(MenuMain());
+void main() => runApp(MenuClass());
 
-class MenuMain extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Unified Process',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
-        drawer: MenuDrawer(),
-        appBar: AppBar(
-          title: Text('Unified Process'),
-        ),
-        body: MenuList()
-      ),
-    );
-  }
-}
-
-class MenuDrawer extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
+Drawer menuDrawer(BuildContext context) {
+  return Drawer(
+      child:
+      ListView(
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
@@ -39,17 +19,26 @@ class MenuDrawer extends StatelessWidget{
               child: Column(
                 children: <Widget>[
                   Material(
-                    borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(40.0)),
                     child: Padding(
                         padding: EdgeInsets.all(5),
-                        child : Image.asset('assets/images/gobel.png', width: 90, height: 90,)
+                        child: Image.asset(
+                          'assets/images/gobel.png', width: 70, height: 70,)
                     ),
                     elevation: 10,
                   ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: Center(
-                        child: Text("Noval Debby Prasetyono", style: TextStyle(color: Colors.white, fontSize: 17),)
+                        child: Text("Noval Debby Prasetyono",
+                          style: TextStyle(color: Colors.white, fontSize: 17),)
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                    child: Center(
+                        child: Text("(System Admin)",
+                          style: TextStyle(color: Colors.white, fontSize: 12),)
                     ),
                   )
                 ],
@@ -59,21 +48,21 @@ class MenuDrawer extends StatelessWidget{
           ListTile(
             title: Text('Remaining Task'),
             leading: Icon(Icons.assignment_late),
-            onTap: (){
+            onTap: () {
 
             },
           ),
           ListTile(
             title: Text('Setting'),
             leading: Icon(Icons.settings),
-            onTap: (){
+            onTap: () {
 
             },
           ),
           ListTile(
             title: Text('About Us'),
             leading: Icon(Icons.info_outline),
-            onTap: (){
+            onTap: () {
 
             },
           ),
@@ -83,6 +72,24 @@ class MenuDrawer extends StatelessWidget{
             onTap: () => Navigator.pop(context),
           )
         ],
+      )
+  );
+}
+
+class MenuClass extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Unified Process',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: Scaffold(
+        drawer: menuDrawer(context),
+        appBar: AppBar(
+          title: Text('Unified Process'),
+        ),
+        body: MenuList()
       ),
     );
   }
