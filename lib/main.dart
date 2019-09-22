@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:unified_process/production_transfer_add.dart';
+import 'package:unified_process/production_transfer_detail.dart';
 import 'login.dart';
 import 'menu.dart';
 import 'product_search.dart';
@@ -26,6 +28,8 @@ void main(){
         '/production_output': (context) => ProductionOutputClass(),
         '/production_output_add': (context) => ProductionOutputAddClass(),
         '/production_transfer': (context) => ProductionTransfer(),
+        '/production_transfer_add': (context) => ProductionTransferAdd(),
+        '/production_transfer_detail': (context) => ProductionTransferDetail(),
         '/warehouse_receipt': (context) => WarehouseReceipt(),
         '/warehouse_allocation': (context) => WarehouseAllocation(),
         '/warehouse_tag_count': (context) => WarehosueTagCount(),

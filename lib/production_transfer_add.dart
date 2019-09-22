@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'model/production.dart';
 
-class WarehouseReceipt extends StatelessWidget {
-  final String title = 'Warehouse Receipt';
+class ProductionTransferAdd extends StatelessWidget {
+  final String title = 'Production Transfer Add';
   final productionData = [
     Production(1, '09190001', '2019-09-19 07:00:00', 10),
     Production(2, '09190002', '2019-09-19 08:00:00', 5),
@@ -29,7 +29,7 @@ class WarehouseReceipt extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () => Navigator.pushNamed(context, '/warehouse_receipt_add'),
+          onPressed: () => Navigator.pushNamed(context, '/production_transfer_add'),
         ),
         body: ListView.separated(
           separatorBuilder: (context, index) {
