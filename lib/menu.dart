@@ -87,26 +87,41 @@ Drawer menuDrawer(BuildContext context) {
 }
 
 Material menuItems(BuildContext context, String icon, String title, String route){
-  return Material(
-    color: Colors.white,
-    elevation: 10,
-    borderRadius: BorderRadius.circular(24),
-    child: InkWell(
-      child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(5),
-                child: Image.asset(icon, width: 75, height: 75, fit: BoxFit.fill),
-              ),
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold),)
-            ],
-          )
-      ),
-      onTap: () { Navigator.pushNamed(context, route); },
-    )
-  );
+  if(icon != 'lastupdate'){
+    return Material(
+        color: Colors.white,
+        elevation: 10,
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
+          child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Image.asset(icon, width: 75, height: 75, fit: BoxFit.fill),
+                  ),
+                  Text(title, style: TextStyle(fontWeight: FontWeight.bold),)
+                ],
+              )
+          ),
+          onTap: () {
+            if(route != ''){
+              Navigator.pushNamed(context, route);
+            } },
+        )
+    );
+  }else{
+    return Material(
+        color: Colors.white,
+        elevation: 10,
+        borderRadius: BorderRadius.circular(5),
+        child: Center(
+            child: Text('Last Update : 23-09-2019 01:13')
+        )
+    );
+  }
+
 }
 
 StaggeredGridView menuList(BuildContext context){
@@ -116,6 +131,7 @@ StaggeredGridView menuList(BuildContext context){
     mainAxisSpacing: 10,
     padding: EdgeInsets.all(10),
     children: <Widget>[
+      menuItems(context, 'lastupdate', "Last Update", ''),
       menuItems(context, 'assets/images/production.png', "Output", '/production_output'),
       menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
       menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
@@ -125,6 +141,7 @@ StaggeredGridView menuList(BuildContext context){
       menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
     ],
     staggeredTiles: [
+      StaggeredTile.extent(2, 50),
       StaggeredTile.extent(1, 125),
       StaggeredTile.extent(1, 125),
       StaggeredTile.extent(1, 125),
