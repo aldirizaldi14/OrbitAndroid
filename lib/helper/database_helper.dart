@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static final _databaseName = "unified_process.db";
-  static final _databaseVersion = 1;
+  static final _databaseVersion = 2;
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
@@ -60,6 +60,7 @@ class DatabaseHelper {
         "pallet_id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "pallet_name TEXT,"
         "pallet_description TEXT,"
+        "pallet_warehouse_id INTEGER,"
         "pallet_server_id INTEGER,"
         "pallet_created_at TEXT,"
         "pallet_created_by TEXT,"
@@ -147,6 +148,14 @@ class DatabaseHelper {
         "receiptdet_updated_at TEXT,"
         "receiptdet_updated_by TEXT,"
         "receiptdet_deleted_at TEXT"
+        ")"
+    );
+    await db.execute(
+      "CREATE TABLE pallet_product_qty("
+        "warehouse_id INTEGER,"
+        "pallet_id INTEGER,"
+        "product_id INTEGER,"
+        "quantity INTEGER"
         ")"
     );
   }

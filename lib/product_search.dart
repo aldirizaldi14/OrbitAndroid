@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:unified_process/model/product_model.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:unified_process/model/pallet_product_qty_model.dart';
 import 'helper/database_helper.dart';
-import 'dart:developer';
 
 class ProductSearch extends StatefulWidget {
   ProductSearch({ Key key}) : super (key: key);
@@ -20,7 +20,7 @@ class ProductSearchState extends State<ProductSearch> {
   String description = '';
   List<TableRow> productData = [];
 
-  Future<void> initPlatformState() async {
+  Future<void> scanBarcode() async {
     String barcodeScanRes;
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true);
@@ -35,10 +35,12 @@ class ProductSearchState extends State<ProductSearch> {
       productCode = barcodeScanRes;
       description = 'Description of ' + productCode;
     });
+    fetchData(int.parse(productCode));
   }
 
-  void fetchData() async {
-    final allRows = await widget.databaseHelper.queryAllRows('product');
+  void fetchData(int product_id) async {
+    Database db = await widget.databaseHelper.database;
+    final allRows = await db.query(PalletProductQtyModel.instance.tableName, where: 'product_id = ?', whereArgs:[product_id]);
 
     List<TableRow> test = [];
     int i = 0;
@@ -46,13 +48,13 @@ class ProductSearchState extends State<ProductSearch> {
       ++i;
       print(row);
       print(i);
-      ProductModel rowData = ProductModel.fromDb(row);
+      PalletProductQtyModel rowData = PalletProductQtyModel.fromDb(row);
       test.add(TableRow(
           children: [
             Text(i.toString()),
-            Text(rowData.product_code),
-            Text(rowData.product_description),
-            Text(rowData.product_description),
+            Text(rowData.warehouse_id.toString()),
+            Text(rowData.pallet_id.toString()),
+            Text(rowData.product_id.toString()),
           ]
       ));
     });
@@ -62,9 +64,9 @@ class ProductSearchState extends State<ProductSearch> {
   }
 
   void testinsert() async{
-    ProductModel productModel = ProductModel();
-    productModel = ProductModel.random();
-    int test = await widget.databaseHelper.insert(productModel.tableName, productModel.toMap());
+    PalletProductQtyModel palletProductQtyModel = PalletProductQtyModel();
+    palletProductQtyModel = PalletProductQtyModel.random();
+    int test = await widget.databaseHelper.insert(palletProductQtyModel.tableName, palletProductQtyModel.toMap());
     print(test);
   }
 
@@ -90,11 +92,7 @@ class ProductSearchState extends State<ProductSearch> {
                   color: Colors.blue,
                   child: Icon(FontAwesomeIcons.barcode, color: Colors.white,),
                   onPressed: (){
-                    setState(() {
-                      productCode = 'E123A';
-                      description = 'Description of ' + productCode;
-                    });
-                    fetchData();
+                    scanBarcode();
                   },
                 ),
               ),
