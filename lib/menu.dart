@@ -116,13 +116,13 @@ StaggeredGridView menuList(BuildContext context){
     mainAxisSpacing: 10,
     padding: EdgeInsets.all(10),
     children: <Widget>[
-      menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
       menuItems(context, 'assets/images/production.png', "Output", '/production_output'),
       menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
       menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
       menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
       menuItems(context, 'assets/images/count.png', "Tag Count", '/warehouse_tag_count'),
       menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
+      menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
     ],
     staggeredTiles: [
       StaggeredTile.extent(1, 125),

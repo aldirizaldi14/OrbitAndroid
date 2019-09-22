@@ -1,8 +1,10 @@
-import 'package:meta/meta.dart';
+import 'dart:math';
 
 class ProductModel {
-  final tableName = 'product';
+  ProductModel._privateConstructor();
+  static final ProductModel instance = ProductModel._privateConstructor();
 
+  final String tableName = 'product';
   int product_id;
   String product_code;
   String product_description;
@@ -39,4 +41,11 @@ class ProductModel {
         product_updated_at = map['product_updated_at'],
         product_updated_by = map['product_updated_by'],
         product_deleted_at = map['product_deleted_at'];
+
+  ProductModel.random(){
+    String code = 'N19${1 + Random().nextInt(6)}';
+    this.product_id = null;
+    this.product_code = code;
+    this.product_description = 'Description of $code';
+  }
 }
