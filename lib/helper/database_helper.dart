@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static final _databaseName = "unified_process.db";
-  static final _databaseVersion = 2;
+  static final _databaseVersion = 1;
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
@@ -42,6 +42,14 @@ class DatabaseHelper {
         "product_deleted_at TEXT"
         ")"
     );
+    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(1, "N0001", "Lampu Smart GSM 50watt")');
+    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(2, "N0002", "Lampu Smart GSM 90watt")');
+    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(3, "N0003", "Lampu Smart GSM 120watt")');
+    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(4, "N0004", "Lampu Smart RF 50watt")');
+    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(5, "N0005", "Lampu Smart RF 90watt")');
+    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(6, "N0006", "Lampu Smart RF 120watt")');
+    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(7, "N0007", "Lampu Smart Solar")');
+
     await db.execute(
       "CREATE TABLE warehouse("
         "warehouse_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -55,6 +63,10 @@ class DatabaseHelper {
         "warehouse_deleted_at TEXT"
         ")"
     );
+    await db.rawInsert('INSERT INTO warehouse(warehouse_id, warehouse_name, warehouse_description) VALUES(1, "Gudang 1", "")');
+    await db.rawInsert('INSERT INTO warehouse(warehouse_id, warehouse_name, warehouse_description) VALUES(2, "Gudang 2", "")');
+    await db.rawInsert('INSERT INTO warehouse(warehouse_id, warehouse_name, warehouse_description) VALUES(3, "Gudang 3", "")');
+
     await db.execute(
       "CREATE TABLE pallet("
         "pallet_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -69,6 +81,13 @@ class DatabaseHelper {
         "pallet_deleted_at TEXT"
         ")"
     );
+    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(1, "Pallet 1A", "", 1)');
+    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(2, "Pallet 1B", "", 1)');
+    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(3, "Pallet 2A", "", 2)');
+    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(4, "Pallet 2B", "", 2)');
+    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(5, "Pallet 3A", "", 3)');
+    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(6, "Pallet 3B", "", 3)');
+
     await db.execute(
       "CREATE TABLE production("
         "production_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -165,30 +184,22 @@ class DatabaseHelper {
     return await db.insert(table, row, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  // All of the rows are returned as a list of maps, where each map is
-  // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows(String table) async {
     Database db = await instance.database;
     return await db.query(table);
   }
 
-  // All of the methods (insert, query, update, delete) can also be done using
-  // raw SQL commands. This method uses a raw query to give the row count.
   Future<int> queryRowCount(String table) async {
     Database db = await instance.database;
     return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table'));
   }
 
-  // We are assuming here that the id column in the map is set. The other
-  // column values will be used to update the row.
   Future<int> update(String table, String columnId, Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = row[columnId];
     return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
   }
 
-  // Deletes the row specified by the id. The number of affected rows is
-  // returned. This should be 1 as long as the row exists.
   Future<int> delete(String table, String columnId, int id) async {
     Database db = await instance.database;
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);

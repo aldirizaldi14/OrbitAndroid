@@ -28,9 +28,9 @@ class PalletProductQtyModel {
         quantity = map['quantity'];
 
   PalletProductQtyModel.random(){
-    this.warehouse_id = 1 + Random().nextInt(3);
-    this.pallet_id = 1 + Random().nextInt(3);
-    this.product_id = 1 + Random().nextInt(10);
-    this.quantity = 1 + Random().nextInt(30);
+    this.warehouse_id = 1 + Random().nextInt(2);
+    this.pallet_id = 1 + Random().nextInt(5);
+    this.product_id = 1 + Random().nextInt(6);
+    this.quantity = 10 + Random().nextInt(20);
   }
 }

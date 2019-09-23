@@ -4,6 +4,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unified_process/model/pallet_product_qty_model.dart';
+import 'package:unified_process/model/product_model.dart';
 import 'helper/database_helper.dart';
 
 class ProductSearch extends StatefulWidget {
@@ -31,16 +32,32 @@ class ProductSearchState extends State<ProductSearch> {
 
     if (!mounted) return;
 
-    setState(() {
-      productCode = barcodeScanRes;
-      description = 'Description of ' + productCode;
-    });
-    fetchData(int.parse(productCode));
+    Database db = await widget.databaseHelper.database;
+    final data = await db.query('product', where: 'product_code = ?', whereArgs: [barcodeScanRes]);
+    if(data.length > 0){
+      ProductModel productModel = ProductModel.fromDb(data.first);
+      setState(() {
+        productCode = barcodeScanRes;
+        description = productModel.product_description;
+      });
+      fetchData(productCode);
+    }else {
+      setState(() {
+        productCode = 'Invalid';
+        description = '';
+      });
+    }
   }
 
-  void fetchData(int product_id) async {
+  void fetchData(String product_code) async {
     Database db = await widget.databaseHelper.database;
-    final allRows = await db.query(PalletProductQtyModel.instance.tableName, where: 'product_id = ?', whereArgs:[product_id]);
+    final allRows = await db.rawQuery("SELECT warehouse_name, pallet_name, product_description, quantity FROM pallet_product_qty "
+        "LEFT JOIN product ON product.product_id = pallet_product_qty.product_id "
+        "LEFT JOIN pallet ON pallet.pallet_id = pallet_product_qty.pallet_id "
+        "LEFT JOIN warehouse ON warehouse.warehouse_id = pallet.pallet_warehouse_id "
+        "WHERE product_code = ?", [product_code]
+    );
+    print(allRows);
 
     List<TableRow> test = [];
     int i = 0;
@@ -51,10 +68,10 @@ class ProductSearchState extends State<ProductSearch> {
       PalletProductQtyModel rowData = PalletProductQtyModel.fromDb(row);
       test.add(TableRow(
           children: [
-            Text(i.toString()),
-            Text(rowData.warehouse_id.toString()),
-            Text(rowData.pallet_id.toString()),
-            Text(rowData.product_id.toString()),
+            Center(child: Text(i.toString())),
+            Text(row['warehouse_name']),
+            Text(row['pallet_name']),
+            Center(child: Text(row['quantity'].toString()))
           ]
       ));
     });
@@ -76,12 +93,12 @@ class ProductSearchState extends State<ProductSearch> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        floatingActionButton: FloatingActionButton(
+        /*floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: (){
             testinsert();
           },
-        ),
+        ),*/
         body: Padding(
           padding: EdgeInsets.all(5),
           child: Column(
@@ -100,15 +117,15 @@ class ProductSearchState extends State<ProductSearch> {
               Text(description, style: TextStyle(fontSize: 12),),
               Table(
                 border: TableBorder.all(color: Colors.black),
-                columnWidths: {0: FractionColumnWidth(.1), 2: FractionColumnWidth(.2), 3: FractionColumnWidth(.2)},
+                columnWidths: {0: FractionColumnWidth(.1), 2: FractionColumnWidth(.3), 3: FractionColumnWidth(.2)},
                 children: [
                   TableRow(
-                      children: [
-                        Text('#'),
-                        Text('Warehouse'),
-                        Text('Pallet'),
-                        Text('Qty'),
-                      ]
+                    children: [
+                      Center(child: Text('#')),
+                      Center(child: Text('Warehouse')),
+                      Center(child: Text('Pallet')),
+                      Center(child: Text('Qty')),
+                    ],
                   ),
                ]
             ),
@@ -116,7 +133,7 @@ class ProductSearchState extends State<ProductSearch> {
                 child: SingleChildScrollView(
                   child: Table(
                     border: TableBorder.all(color: Colors.black),
-                    columnWidths: {0: FractionColumnWidth(.1), 2: FractionColumnWidth(.2), 3: FractionColumnWidth(.2)},
+                    columnWidths: {0: FractionColumnWidth(.1), 2: FractionColumnWidth(.3), 3: FractionColumnWidth(.2)},
                     children: productData
                   ),
                 ),
