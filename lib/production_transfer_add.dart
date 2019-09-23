@@ -47,11 +47,11 @@ class ProductionTransferAdd extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(p.code, style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
-                        Text(p.time, style: TextStyle( fontSize: 12),),
+                        Text(p.production_code, style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                        Text(p.production_time, style: TextStyle( fontSize: 12),),
                       ],
                     ),
-                    Text(p.qty.toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 20),)
+                    Text(p.production_qty.toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 20),)
                   ],
                 )
             );
