@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'model/production.dart';
 import 'helper/database_helper.dart';
 
 class ProductionOutputClass extends StatefulWidget {
@@ -14,19 +13,24 @@ class ProductionOutputClass extends StatefulWidget {
 
 class ProductionOutputState extends State<ProductionOutputClass> {
   List productionData = [];
-  void fetchData(String product_code) async {
+  Future<List<Map<String, dynamic>>> fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT production_id, product_name, production_time, production_qty FROM production "
-        "JOIN product ON product.product_id = production.product_id "
-        "WHERE production_deleted_at IS NULL"
+    final data = await db.rawQuery("SELECT production_id, product_code, production_time, production_qty FROM production "
+        "LEFT JOIN product ON product.product_id = production.production_product_id "
     );
-    print(data);
-    if(data.length > 0){
+    return data;
+  }
+
+  @override
+  initState() {
+    super.initState();
+    fetchData().then((data){
       setState(() {
         productionData = data;
       });
-    }
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {

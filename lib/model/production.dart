@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Production {
   final String tableName = 'production';
 
@@ -72,4 +74,12 @@ class Production {
         pallet_updated_at = map['pallet_updated_at'],
         pallet_updated_by = map['pallet_updated_by'],
         pallet_deleted_at = map['pallet_deleted_at'];
+
+  Production.random(){
+    this.production_id = null;
+    this.production_code = 'P'+ (1 + Random().nextInt(30)).toString();
+    this.production_time = '23-09-2019 00:00:00';
+    this.production_qty = 10 + Random().nextInt(20);
+    this.production_product_id = 1 + Random().nextInt(6);
+  }
 }

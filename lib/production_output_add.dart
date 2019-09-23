@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'helper/database_helper.dart';
+import 'model/production.dart';
 
 class ProductionOutputAddClass extends StatefulWidget {
   ProductionOutputAddClass({ Key key}) : super (key: key);
   final String title = 'Production Output Add';
+  final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
   @override
   ProductionOutputAddState createState() => ProductionOutputAddState();
@@ -32,6 +35,16 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
       barcodeValue = barcodeScanRes;
       productController.text = barcodeValue;
     });
+  }
+
+  void saveData() async{
+    Production production = Production(1, '', '', 1);
+    production = Production.random();
+    int test = await widget.databaseHelper.insert(production.tableName, production.toMap());
+    print(test);
+    if(test > 0){
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -133,7 +146,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                 color: Colors.blue,
                 onPressed: () {
                   if(formKey.currentState.saveAndValidate()) {
-                    Navigator.pop(context);
+                    saveData();
                   }
                 },
                 child: Text('Save', style: TextStyle(color: Colors.white),),
