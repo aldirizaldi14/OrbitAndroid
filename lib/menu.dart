@@ -7,7 +7,7 @@ class MenuClass extends StatelessWidget {
     return Scaffold(
         drawer: menuDrawer(context),
         appBar: AppBar(
-          title: Text('Unified Process'),
+          title: Text('UNIFIED PROCESS'),
         ),
         body: menuList(context)
     );
