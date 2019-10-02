@@ -13,24 +13,22 @@ class ProductionOutputClass extends StatefulWidget {
 
 class ProductionOutputState extends State<ProductionOutputClass> {
   List productionData = [];
-  Future<List<Map<String, dynamic>>> fetchData() async {
+  void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT production_id, product_code, production_time, production_qty FROM production "
+    final data = await db.rawQuery("SELECT production_id, product_code, production_time, production_qty "
+        "FROM production "
         "LEFT JOIN product ON product.product_id = production.production_product_id "
     );
-    return data;
+    setState(() {
+      productionData = data;
+    });
   }
 
   @override
   initState() {
     super.initState();
-    fetchData().then((data){
-      setState(() {
-        productionData = data;
-      });
-    });
+    fetchData();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +38,12 @@ class ProductionOutputState extends State<ProductionOutputClass> {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () => Navigator.pushNamed(context, '/production_output_add'),
+          onPressed: () async{
+            await Navigator.pushNamed(context, '/production_output_add');
+            fetchData();
+          },
         ),
-        body: ListView.separated(
+        body: productionData.isEmpty ? Center(child: Text('No data available'),) : ListView.separated(
           separatorBuilder: (context, index) {
             return Divider(
               color: Colors.grey,

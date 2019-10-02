@@ -16,7 +16,7 @@ class ProductionOutputAddClass extends StatefulWidget {
 }
 
 class ProductionOutputAddState extends State<ProductionOutputAddClass>{
-  TextEditingController productController = TextEditingController();
+  TextEditingController productController = TextEditingController(text: 'Scan product');
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 
   String barcodeValue = '';
@@ -24,7 +24,6 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     String barcodeScanRes;
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true);
-      print(barcodeScanRes);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
@@ -70,12 +69,12 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                               child: FormBuilderTextField(
                                 attribute: "product_id",
                                 controller: productController,
-                                decoration: InputDecoration(labelText: "Product", fillColor: Colors.black12, filled: true),
+                                decoration: InputDecoration(labelText: "Product"),
                                 readOnly: true,
                                 validators: [
                                   (val){
-                                    if((val == '') || (val == 'Please Scan Product')){
-                                      productController.text = 'Please Scan Product';
+                                    if(val == 'Scan product'){
+                                      productController.text = 'Scan product';
                                       return '-';
                                     }
                                   },
@@ -86,7 +85,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                               onTap: (){
                                 initPlatformState();
                               },
-                              child: Icon(FontAwesomeIcons.barcode, size: 50,),
+                              child: Icon(FontAwesomeIcons.barcode, size: 65,),
                             )
                           ],
                         ),

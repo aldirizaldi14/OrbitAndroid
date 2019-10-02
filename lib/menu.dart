@@ -14,7 +14,7 @@ class MenuClass extends StatelessWidget {
   }
 }
 
-Drawer menuDrawer(BuildContext context) {
+Widget menuDrawer(BuildContext context) {
   return Drawer(
     child: ListView(
       children: <Widget>[
@@ -116,8 +116,17 @@ Material menuItems(BuildContext context, String icon, String title, String route
         color: Colors.white,
         elevation: 10,
         borderRadius: BorderRadius.circular(5),
-        child: Center(
-            child: Text('Last Update : 23-09-2019 01:13')
+        child: InkWell(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Center(
+                    child: Text('Last Update : 23-09-2019 01:13')
+                ),
+              ),
+              Padding(padding: EdgeInsets.fromLTRB(0, 0, 20, 0), child: Icon(Icons.sync),),
+            ],
+          ),
         )
     );
   }

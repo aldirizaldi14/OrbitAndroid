@@ -58,7 +58,7 @@ class LoginClass extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
             child: Center(
               child: (
-                  Text('PT Panasonic Gobel Life Solutions')
+                  Text('PT. Panasonic Gobel Life Solutions Manufacturing Indonesia', style: TextStyle(fontSize: 11),)
               ),
             )
           ),
