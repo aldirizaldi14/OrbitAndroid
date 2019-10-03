@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:unified_process/model/pallet_product_qty_model.dart';
+import 'package:unified_process/model/area_product_qty_model.dart';
 import 'package:unified_process/model/product_model.dart';
 import 'helper/database_helper.dart';
 
@@ -51,9 +51,9 @@ class ProductSearchState extends State<ProductSearch> {
 
   void fetchData(String product_code) async {
     Database db = await widget.databaseHelper.database;
-    final allRows = await db.rawQuery("SELECT warehouse_name, pallet_name, product_description, quantity FROM pallet_product_qty "
+    final allRows = await db.rawQuery("SELECT warehouse_name, area_name, product_description, quantity FROM pallet_product_qty "
         "LEFT JOIN product ON product.product_id = pallet_product_qty.product_id "
-        "LEFT JOIN pallet ON pallet.pallet_id = pallet_product_qty.pallet_id "
+        "LEFT JOIN area ON area.area_id = pallet_product_qty.area_id "
         "LEFT JOIN warehouse ON warehouse.warehouse_id = pallet.pallet_warehouse_id "
         "WHERE product_code = ?", [product_code]
     );
@@ -65,12 +65,12 @@ class ProductSearchState extends State<ProductSearch> {
       ++i;
       print(row);
       print(i);
-      PalletProductQtyModel rowData = PalletProductQtyModel.fromDb(row);
+      AreaProductQtyModel rowData = AreaProductQtyModel.fromDb(row);
       test.add(TableRow(
           children: [
             Center(child: Text(i.toString())),
             Text(row['warehouse_name']),
-            Text(row['pallet_name']),
+            Text(row['area_name']),
             Center(child: Text(row['quantity'].toString()))
           ]
       ));
@@ -81,9 +81,9 @@ class ProductSearchState extends State<ProductSearch> {
   }
 
   void testinsert() async{
-    PalletProductQtyModel palletProductQtyModel = PalletProductQtyModel();
-    palletProductQtyModel = PalletProductQtyModel.random();
-    int test = await widget.databaseHelper.insert(palletProductQtyModel.tableName, palletProductQtyModel.toMap());
+    AreaProductQtyModel areaProductQtyModel = AreaProductQtyModel.instance;
+    areaProductQtyModel = AreaProductQtyModel.random();
+    int test = await widget.databaseHelper.insert(areaProductQtyModel.tableName, areaProductQtyModel.toMap());
     print(test);
   }
 

@@ -68,25 +68,25 @@ class DatabaseHelper {
     await db.rawInsert('INSERT INTO warehouse(warehouse_id, warehouse_name, warehouse_description) VALUES(3, "Gudang 3", "")');
 
     await db.execute(
-      "CREATE TABLE pallet("
-        "pallet_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "pallet_name TEXT,"
-        "pallet_description TEXT,"
-        "pallet_warehouse_id INTEGER,"
-        "pallet_server_id INTEGER,"
-        "pallet_created_at TEXT,"
-        "pallet_created_by TEXT,"
-        "pallet_updated_at TEXT,"
-        "pallet_updated_by TEXT,"
-        "pallet_deleted_at TEXT"
+      "CREATE TABLE area("
+        "area_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "area_name TEXT,"
+        "area_description TEXT,"
+        "area_warehouse_id INTEGER,"
+        "area_server_id INTEGER,"
+        "area_created_at TEXT,"
+        "area_created_by TEXT,"
+        "area_updated_at TEXT,"
+        "area_updated_by TEXT,"
+        "area_deleted_at TEXT"
         ")"
     );
-    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(1, "Pallet 1A", "", 1)');
-    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(2, "Pallet 1B", "", 1)');
-    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(3, "Pallet 2A", "", 2)');
-    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(4, "Pallet 2B", "", 2)');
-    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(5, "Pallet 3A", "", 3)');
-    await db.rawInsert('INSERT INTO pallet(pallet_id, pallet_name, pallet_description, pallet_warehouse_id) VALUES(6, "Pallet 3B", "", 3)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(1, "Pallet 1A", "", 1)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(2, "Pallet 1B", "", 1)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(3, "Pallet 2A", "", 2)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(4, "Pallet 2B", "", 2)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(5, "Pallet 3A", "", 3)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(6, "Pallet 3B", "", 3)');
 
     await db.execute(
       "CREATE TABLE production("
@@ -100,13 +100,14 @@ class DatabaseHelper {
         "production_qty INTEGER,"
         "production_user_id INTEGER,"
         "production_server_id INTEGER,"
-        "pallet_created_at TEXT,"
-        "pallet_created_by TEXT,"
-        "pallet_updated_at TEXT,"
-        "pallet_updated_by TEXT,"
-        "pallet_deleted_at TEXT"
+        "production_created_at TEXT,"
+        "production_created_by TEXT,"
+        "production_updated_at TEXT,"
+        "production_updated_by TEXT,"
+        "production_deleted_at TEXT"
         ")"
     );
+
     await db.execute(
       "CREATE TABLE transfer("
         "transfer_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -121,6 +122,7 @@ class DatabaseHelper {
         "transfer_deleted_at TEXT"
         ")"
     );
+
     await db.execute(
       "CREATE TABLE transferdet("
         "transferdet_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -136,6 +138,7 @@ class DatabaseHelper {
         "transferdet_deleted_at TEXT"
         ")"
     );
+
     await db.execute(
       "CREATE TABLE receipt("
         "receipt_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -152,6 +155,7 @@ class DatabaseHelper {
         "receipt_deleted_at TEXT"
         ")"
     );
+
     await db.execute(
       "CREATE TABLE receiptdet("
         "receiptdet_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -170,9 +174,9 @@ class DatabaseHelper {
         ")"
     );
     await db.execute(
-      "CREATE TABLE pallet_product_qty("
+      "CREATE TABLE area_product_qty("
         "warehouse_id INTEGER,"
-        "pallet_id INTEGER,"
+        "area_id INTEGER,"
         "product_id INTEGER,"
         "quantity INTEGER"
         ")"

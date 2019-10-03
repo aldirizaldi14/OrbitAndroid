@@ -4,7 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'helper/database_helper.dart';
-import 'model/production.dart';
+import 'model/production_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
@@ -52,7 +52,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
 
   void saveData() async{
     final formData = formKey.currentState.value;
-    Production production = Production();
+    ProductionModel production = ProductionModel.instance;
     production.production_product_id = product_id;
     production.production_batch = formData['batch'];
     production.production_line_id = formData['line_id'];

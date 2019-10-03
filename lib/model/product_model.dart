@@ -1,5 +1,3 @@
-import 'dart:math';
-
 class ProductModel {
   ProductModel._privateConstructor();
   static final ProductModel instance = ProductModel._privateConstructor();
@@ -14,8 +12,6 @@ class ProductModel {
   String product_updated_at;
   String product_updated_by;
   String product_deleted_at;
-
-  ProductModel({this.product_id, this.product_code, this.product_description});
 
   Map<String, dynamic> toMap() {
     return {
@@ -41,11 +37,4 @@ class ProductModel {
         product_updated_at = map['product_updated_at'],
         product_updated_by = map['product_updated_by'],
         product_deleted_at = map['product_deleted_at'];
-
-  ProductModel.random(){
-    String code = 'N19${1 + Random().nextInt(6)}';
-    this.product_id = null;
-    this.product_code = code;
-    this.product_description = 'Description of $code';
-  }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'model/production.dart';
+import 'model/production_model.dart';
 
 class WarehouseReceipt extends StatelessWidget {
   final String title = 'Warehouse Receipt';
@@ -23,7 +23,7 @@ class WarehouseReceipt extends StatelessWidget {
             );
           },
           itemBuilder: (context, index) {
-            Production p = productionData[index];
+            final p = productionData[index];
             return Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Row(

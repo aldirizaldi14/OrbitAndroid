@@ -1,9 +1,8 @@
-import 'dart:math';
+class ProductionModel {
+  ProductionModel._privateConstructor();
+  static final ProductionModel instance = ProductionModel._privateConstructor();
 
-class Production {
   final String tableName = 'production';
-  Production();
-
   int production_id;
   String production_code;
   String production_time;
@@ -19,18 +18,6 @@ class Production {
   String pallet_updated_at;
   String pallet_updated_by;
   String pallet_deleted_at;
-
-  /*Production({
-    this.production_id,
-    this.production_code,
-    this.production_time,
-    this.production_product_id,
-    this.production_line_id,
-    this.production_shift,
-    this.production_batch,
-    this.production_qty,
-    this.production_user_id,
-  });*/
 
   Map<String, dynamic> toMap() {
     return {
@@ -52,7 +39,7 @@ class Production {
     };
   }
 
-  Production.fromDb(Map<String, dynamic> map)
+  ProductionModel.fromDb(Map<String, dynamic> map)
       : production_id = map['production_id'],
         production_code = map['production_code'],
         production_time = map['production_time'],
@@ -68,12 +55,4 @@ class Production {
         pallet_updated_at = map['pallet_updated_at'],
         pallet_updated_by = map['pallet_updated_by'],
         pallet_deleted_at = map['pallet_deleted_at'];
-
-  Production.random(){
-    this.production_id = null;
-    this.production_code = 'P'+ (1 + Random().nextInt(30)).toString();
-    this.production_time = '23-09-2019 00:00:00';
-    this.production_qty = 10 + Random().nextInt(20);
-    this.production_product_id = 1 + Random().nextInt(6);
-  }
 }

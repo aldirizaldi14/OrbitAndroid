@@ -13,7 +13,7 @@ import 'warehouse_tag_count.dart';
 import 'delivery.dart';
 import 'task.dart';
 import 'setting.dart';
-import 'package:unified_process/About.dart';
+import 'package:unified_process/about.dart';
 import 'barcode.dart';
 
 void main(){

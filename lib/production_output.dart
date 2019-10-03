@@ -4,7 +4,7 @@ import 'helper/database_helper.dart';
 
 class ProductionOutputClass extends StatefulWidget {
   ProductionOutputClass({ Key key}) : super (key: key);
-  final String title = 'Product Output';
+  final String title = 'Production Output';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
   @override
