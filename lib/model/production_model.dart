@@ -13,11 +13,11 @@ class ProductionModel {
   int production_qty;
   int production_user_id;
   int production_server_id;
-  String pallet_created_at;
-  String pallet_created_by;
-  String pallet_updated_at;
-  String pallet_updated_by;
-  String pallet_deleted_at;
+  String production_created_at;
+  String production_created_by;
+  String production_updated_at;
+  String production_updated_by;
+  String production_deleted_at;
 
   Map<String, dynamic> toMap() {
     return {
@@ -31,11 +31,11 @@ class ProductionModel {
       'production_qty': production_qty,
       'production_user_id': production_user_id,
       'production_server_id': production_server_id,
-      'pallet_created_at': pallet_created_at,
-      'pallet_created_by': pallet_created_by,
-      'pallet_updated_at': pallet_updated_at,
-      'pallet_updated_by': pallet_updated_by,
-      'pallet_deleted_at': pallet_deleted_at,
+      'production_created_at': production_created_at,
+      'production_created_by': production_created_by,
+      'production_updated_at': production_updated_at,
+      'production_updated_by': production_updated_by,
+      'production_deleted_at': production_deleted_at,
     };
   }
 
@@ -50,9 +50,9 @@ class ProductionModel {
         production_qty = map['production_qty'],
         production_user_id = map['production_user_id'],
         production_server_id = map['production_server_id'],
-        pallet_created_at = map['pallet_created_at'],
-        pallet_created_by = map['pallet_created_by'],
-        pallet_updated_at = map['pallet_updated_at'],
-        pallet_updated_by = map['pallet_updated_by'],
-        pallet_deleted_at = map['pallet_deleted_at'];
+        production_created_at = map['production_created_at'],
+        production_created_by = map['production_created_by'],
+        production_updated_at = map['production_updated_at'],
+        production_updated_by = map['production_updated_by'],
+        production_deleted_at = map['production_deleted_at'];
 }

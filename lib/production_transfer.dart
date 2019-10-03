@@ -1,29 +1,57 @@
 import 'package:flutter/material.dart';
-import 'model/production_model.dart';
+import 'package:sqflite/sqflite.dart';
+import 'helper/database_helper.dart';
 
-class ProductionTransfer extends StatelessWidget {
+class ProductionTransferClass extends StatefulWidget {
+  ProductionTransferClass({ Key key}) : super (key: key);
   final String title = 'Production Transfer';
-  final productionData = [
-  ];
+  final DatabaseHelper databaseHelper = DatabaseHelper.instance;
+
+  @override
+  ProductionTransferState createState() => ProductionTransferState();
+}
+
+class ProductionTransferState extends State<ProductionTransferClass> {
+  List listData = [];
+  void fetchData() async {
+    Database db = await widget.databaseHelper.database;
+    final data = await db.rawQuery("SELECT transfer_code, transfer_time "
+        "FROM transfer "
+        "ORDER BY transfer_time DESC"
+    );
+    print(data);
+    setState(() {
+      listData = data;
+    });
+  }
+
+  @override
+  initState() {
+    super.initState();
+    fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(title),
+          title: Text(widget.title),
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () => Navigator.pushNamed(context, '/production_transfer_add'),
+          onPressed: () async{
+            await Navigator.pushNamed(context, '/production_transfer_add');
+            fetchData();
+          },
         ),
-        body: ListView.separated(
+        body: listData.isEmpty ? Center(child: Text('No data available'),) : ListView.separated(
           separatorBuilder: (context, index) {
             return Divider(
               color: Colors.grey,
             );
           },
           itemBuilder: (context, index) {
-            final p = productionData[index];
+            final p = listData[index];
             return Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Row(
@@ -32,16 +60,16 @@ class ProductionTransfer extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(p.production_code, style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
-                        Text(p.production_time, style: TextStyle( fontSize: 12),),
+                        Text(p['transfer_code'], style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                        Text(p['transfer_time'], style: TextStyle( fontSize: 12),),
                       ],
                     ),
-                    Text(p.production_qty.toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 20),)
+                    Icon(Icons.keyboard_arrow_right)
                   ],
                 )
             );
           },
-          itemCount: productionData.length,
+          itemCount: listData.length,
         )
     );
   }

@@ -24,7 +24,15 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
 
   int product_id = 0;
   String barcodeValue = '';
-  Future<void> initPlatformState() async {
+  List lineData = [];
+
+  @override
+  initState() {
+    super.initState();
+    fetchLineData();
+  }
+
+  Future<void> openScanner() async {
     String barcodeScanRes;
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true);
@@ -65,6 +73,17 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     }
   }
 
+  void fetchLineData() async {
+    Database db = await widget.databaseHelper.database;
+    final data = await db.rawQuery("SELECT line_id, line_name "
+        "FROM line WHERE line_deleted_at IS NULL "
+        "ORDER BY line_name ASC"
+    );
+    setState(() {
+      lineData = data;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +121,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                             ),
                             InkWell(
                               onTap: (){
-                                initPlatformState();
+                                openScanner();
                               },
                               child: Icon(FontAwesomeIcons.barcode, size: 65,),
                             )
@@ -114,10 +133,9 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                           validators: [
                             FormBuilderValidators.required()
                           ],
-                          items: [[1, 'Line 1'], [2, 'Line 2'], [3, 'Line 3']]
-                              .map((item) => DropdownMenuItem(
-                              value: item[0],
-                              child: Text(item[1].toString())
+                          items: lineData.length == 0 ? [] : lineData.map((item) => DropdownMenuItem(
+                              value: item['line_id'],
+                              child: Text(item['line_name'].toString())
                           )).toList(),
                         ),
                         FormBuilderDropdown(

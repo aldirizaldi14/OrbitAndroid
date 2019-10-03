@@ -17,7 +17,7 @@ class ProductionOutputState extends State<ProductionOutputClass> {
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery("SELECT production_id, product_code, production_time, production_qty "
         "FROM production "
-        "LEFT JOIN product ON product.product_id = production.production_product_id "
+        "JOIN product ON product.product_id = production.production_product_id "
         "ORDER BY production_time DESC"
     );
     print(data);

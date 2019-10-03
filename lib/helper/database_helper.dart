@@ -81,12 +81,29 @@ class DatabaseHelper {
         "area_deleted_at TEXT"
         ")"
     );
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(1, "Pallet 1A", "", 1)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(2, "Pallet 1B", "", 1)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(3, "Pallet 2A", "", 2)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(4, "Pallet 2B", "", 2)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(5, "Pallet 3A", "", 3)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(6, "Pallet 3B", "", 3)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(1, "Area 1A", "", 1)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(2, "Area 1B", "", 1)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(3, "Area 2A", "", 2)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(4, "Area 2B", "", 2)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(5, "Area 3A", "", 3)');
+    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(6, "Area 3B", "", 3)');
+
+    await db.execute(
+        "CREATE TABLE line("
+            "line_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "line_name TEXT,"
+            "line_description TEXT,"
+            "line_server_id INTEGER,"
+            "line_created_at TEXT,"
+            "line_created_by TEXT,"
+            "line_updated_at TEXT,"
+            "line_updated_by TEXT,"
+            "line_deleted_at TEXT"
+            ")"
+    );
+    await db.rawInsert('INSERT INTO line(line_id, line_name, line_description) VALUES(1, "Line A", "")');
+    await db.rawInsert('INSERT INTO line(line_id, line_name, line_description) VALUES(2, "Line B", "")');
+    await db.rawInsert('INSERT INTO line(line_id, line_name, line_description) VALUES(3, "Line C", "")');
 
     await db.execute(
       "CREATE TABLE production("
