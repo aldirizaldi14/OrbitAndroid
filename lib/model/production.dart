@@ -2,6 +2,7 @@ import 'dart:math';
 
 class Production {
   final String tableName = 'production';
+  Production();
 
   int production_id;
   String production_code;
@@ -18,13 +19,6 @@ class Production {
   String pallet_updated_at;
   String pallet_updated_by;
   String pallet_deleted_at;
-
-  Production(
-    this.production_id,
-    this.production_code,
-    this.production_time,
-    this.production_product_id
-  );
 
   /*Production({
     this.production_id,

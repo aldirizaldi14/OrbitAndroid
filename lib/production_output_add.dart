@@ -5,6 +5,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'helper/database_helper.dart';
 import 'model/production.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:toast/toast.dart';
+import 'package:intl/intl.dart';
 
 class ProductionOutputAddClass extends StatefulWidget {
   ProductionOutputAddClass({ Key key}) : super (key: key);
@@ -19,6 +22,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
   TextEditingController productController = TextEditingController(text: 'Scan product');
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 
+  int product_id = 0;
   String barcodeValue = '';
   Future<void> initPlatformState() async {
     String barcodeScanRes;
@@ -30,18 +34,33 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
 
     if (!mounted) return;
 
-    setState(() {
-      barcodeValue = barcodeScanRes;
-      productController.text = barcodeValue;
-    });
+    Database db = await widget.databaseHelper.database;
+    final data = await db.rawQuery("SELECT product_id, product_code "
+        "FROM product "
+        "WHERE product_code = ? AND product_deleted_at IS NULL", [barcodeScanRes]
+    );
+    if(data.length > 0){
+      setState(() {
+        product_id = data[0]['product_id'];
+        barcodeValue = barcodeScanRes;
+        productController.text = barcodeValue;
+      });
+    } else {
+      Toast.show("Product invalid", context);
+    }
   }
 
   void saveData() async{
-    Production production = Production(1, '', '', 1);
-    production = Production.random();
-    int test = await widget.databaseHelper.insert(production.tableName, production.toMap());
-    print(test);
-    if(test > 0){
+    final formData = formKey.currentState.value;
+    Production production = Production();
+    production.production_product_id = product_id;
+    production.production_batch = formData['batch'];
+    production.production_line_id = formData['line_id'];
+    production.production_shift = formData['shift'];
+    production.production_qty = int.parse(formData['quantity']);
+    production.production_time = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
+    int production_id = await widget.databaseHelper.insert(production.tableName, production.toMap());
+    if(production_id > 0){
       Navigator.pop(context);
     }
   }
@@ -95,10 +114,10 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                           validators: [
                             FormBuilderValidators.required()
                           ],
-                          items: ['Line 1', 'Line 2', 'Line 3']
+                          items: [[1, 'Line 1'], [2, 'Line 2'], [3, 'Line 3']]
                               .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(item.toString())
+                              value: item[0],
+                              child: Text(item[1].toString())
                           )).toList(),
                         ),
                         FormBuilderDropdown(
@@ -107,10 +126,10 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                           validators: [
                             FormBuilderValidators.required()
                           ],
-                          items: ['A', 'B', 'C']
+                          items: [[1, 'A'], [2, 'B'], [3, 'C']]
                               .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(item.toString())
+                              value: item[1],
+                              child: Text(item[1].toString())
                           )).toList(),
                         ),
                         FormBuilderDropdown(
@@ -119,10 +138,10 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                           validators: [
                             FormBuilderValidators.required()
                           ],
-                          items: ['Hour to 1', 'Hour to 2', 'Hour to 3', 'Hour to 4', 'Hour to 5']
+                          items: [[1, 'Hour to 1'],[2, 'Hour to 2'],[3, 'Hour to 3'],[4, 'Hour to 4'],[5, 'Hour to 5']]
                               .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(item.toString())
+                              value: item[1],
+                              child: Text(item[1].toString())
                           )).toList(),
                         ),
                         FormBuilderTextField(
@@ -145,6 +164,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                 color: Colors.blue,
                 onPressed: () {
                   if(formKey.currentState.saveAndValidate()) {
+                    print(formKey.currentState.value);
                     saveData();
                   }
                 },

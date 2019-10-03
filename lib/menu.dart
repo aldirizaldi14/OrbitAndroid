@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'api_services.dart';
 
 class MenuClass extends StatelessWidget {
   @override
@@ -86,7 +88,58 @@ Widget menuDrawer(BuildContext context) {
   );
 }
 
-Material menuItems(BuildContext context, String icon, String title, String route){
+class LastUpdatePanel extends StatefulWidget{
+  @override
+  LastUpdatePanelState createState() => LastUpdatePanelState();
+}
+class LastUpdatePanelState extends State<LastUpdatePanel> {
+  SharedPreferences preferences;
+  String last_update = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+        color: Colors.white,
+        elevation: 10,
+        borderRadius: BorderRadius.circular(5),
+        child: InkWell(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Center(
+                    child: Text('Last Update : ' + last_update)
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                child: Icon(Icons.sync),
+              ),
+            ],
+          ),
+          onTap: UpdatePreferences,
+        )
+    );
+  }
+
+  void UpdatePreferences() async{
+    SharedPreferences.setMockInitialValues({});
+    preferences = await SharedPreferences.getInstance();
+    if(! preferences.containsKey('last_update')){
+      String response = await apiLastUpdate();
+      setState(() {
+        last_update = response;
+      });
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    UpdatePreferences();
+  }
+}
+
+Widget menuItems(BuildContext context, String icon, String title, String route){
   if(icon != 'lastupdate'){
     return Material(
         color: Colors.white,
@@ -112,25 +165,8 @@ Material menuItems(BuildContext context, String icon, String title, String route
         )
     );
   }else{
-    return Material(
-        color: Colors.white,
-        elevation: 10,
-        borderRadius: BorderRadius.circular(5),
-        child: InkWell(
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Center(
-                    child: Text('Last Update : 23-09-2019 01:13')
-                ),
-              ),
-              Padding(padding: EdgeInsets.fromLTRB(0, 0, 20, 0), child: Icon(Icons.sync),),
-            ],
-          ),
-        )
-    );
+    return LastUpdatePanel();
   }
-
 }
 
 StaggeredGridView menuList(BuildContext context){

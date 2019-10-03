@@ -4,9 +4,6 @@ import 'model/production.dart';
 class ProductionTransferAdd extends StatelessWidget {
   final String title = 'Production Transfer Add';
   final productionData = [
-    Production(1, 'N0001', 'Smart Lamp GSM', 10),
-    Production(2, 'N0002', 'Smart Lamp RF', 5),
-    Production(3, 'N0003', 'Smart Lamp Solar', 7),
   ];
 
   @override

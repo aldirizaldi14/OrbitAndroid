@@ -4,16 +4,6 @@ import 'model/production.dart';
 class ProductionTransfer extends StatelessWidget {
   final String title = 'Production Transfer';
   final productionData = [
-    Production(1, '09190001', '2019-09-19 07:00:00', 10),
-    Production(2, '09190002', '2019-09-19 08:00:00', 5),
-    Production(3, '09190003', '2019-09-19 09:00:00', 7),
-    Production(4, '09190004', '2019-09-19 10:00:00', 9),
-    Production(5, '09190005', '2019-09-19 11:00:00', 8),
-    Production(6, '09190006', '2019-09-19 12:00:00', 4),
-    Production(7, '09190007', '2019-09-19 13:00:00', 10),
-    Production(8, '09190008', '2019-09-19 14:00:00', 7),
-    Production(9, '09190009', '2019-09-19 15:00:00', 4),
-    Production(10, '09190010', '2019-09-19 16:00:00', 9),
   ];
 
   @override
