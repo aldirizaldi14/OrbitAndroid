@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as prefix0;
 import 'package:sqflite/sqflite.dart';
 import 'helper/database_helper.dart';
 
@@ -15,7 +16,7 @@ class ProductionTransferState extends State<ProductionTransferClass> {
   List listData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT transfer_code, transfer_time "
+    final data = await db.rawQuery("SELECT transfer_id,transfer_code, transfer_time "
         "FROM transfer "
         "ORDER BY transfer_time DESC"
     );
@@ -52,21 +53,26 @@ class ProductionTransferState extends State<ProductionTransferClass> {
           },
           itemBuilder: (context, index) {
             final p = listData[index];
-            return Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(p['transfer_code'], style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
-                        Text(p['transfer_time'], style: TextStyle( fontSize: 12),),
-                      ],
-                    ),
-                    Icon(Icons.keyboard_arrow_right)
-                  ],
-                )
+            return InkWell(
+              child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(p['transfer_id'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                          Text(p['transfer_time'], style: TextStyle( fontSize: 12),),
+                        ],
+                      ),
+                      Icon(Icons.keyboard_arrow_right)
+                    ],
+                  )
+              ),
+              onTap: () {
+                Navigator.pushNamed(context, '/production_transfer_detail', arguments: [p['transfer_id']]);
+              },
             );
           },
           itemCount: listData.length,
