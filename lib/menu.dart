@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 import 'api_services.dart';
 
 class MenuClass extends StatelessWidget {
@@ -122,13 +123,21 @@ class LastUpdatePanelState extends State<LastUpdatePanel> {
   }
 
   void UpdatePreferences() async{
-    SharedPreferences.setMockInitialValues({});
     preferences = await SharedPreferences.getInstance();
-    if(! preferences.containsKey('last_update')){
-      String response = await apiLastUpdate();
+    if(preferences.containsKey('last_update')){
+      String prefData = preferences.getString('last_update');
+      setState(() {
+        last_update = prefData;
+      });
+    }
+    String response = await apiLastUpdate();
+    if(! response.isEmpty){
+      preferences.setString('last_update', response);
       setState(() {
         last_update = response;
       });
+    }else{
+      Toast.show('Unable to connect to server', context);
     }
   }
 

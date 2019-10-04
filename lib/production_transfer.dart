@@ -16,7 +16,7 @@ class ProductionTransferState extends State<ProductionTransferClass> {
   List listData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT transfer_id,transfer_code, transfer_time "
+    final data = await db.rawQuery("SELECT transfer_id,transfer_code, transfer_time, transfer_updated_at "
         "FROM transfer "
         "ORDER BY transfer_time DESC"
     );
@@ -53,26 +53,29 @@ class ProductionTransferState extends State<ProductionTransferClass> {
           },
           itemBuilder: (context, index) {
             final p = listData[index];
-            return InkWell(
-              child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(p['transfer_id'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
-                          Text(p['transfer_time'], style: TextStyle( fontSize: 12),),
-                        ],
-                      ),
-                      Icon(Icons.keyboard_arrow_right)
-                    ],
-                  )
+            return Container(
+              color: p['transfer_id'].toString().isEmpty ? Colors.white : Colors.greenAccent,
+              child: InkWell(
+                child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(p['transfer_id'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                            Text(p['transfer_time'], style: TextStyle( fontSize: 12),),
+                          ],
+                        ),
+                        Icon(Icons.keyboard_arrow_right)
+                      ],
+                    )
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, '/production_transfer_detail', arguments: [p['transfer_id']]);
+                },
               ),
-              onTap: () {
-                Navigator.pushNamed(context, '/production_transfer_detail', arguments: [p['transfer_id']]);
-              },
             );
           },
           itemCount: listData.length,

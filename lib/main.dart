@@ -29,7 +29,7 @@ void main(){
         '/production_output_add': (context) => ProductionOutputAddClass(),
         '/production_transfer': (context) => ProductionTransferClass(),
         '/production_transfer_add': (context) => ProductionTransferAddClass(),
-        '/production_transfer_detail': (context) => ProductionTransferDetail(),
+        '/production_transfer_detail': (context) => ProductionTransferDetailClass(),
         '/warehouse_receipt': (context) => WarehouseReceipt(),
         '/warehouse_allocation': (context) => WarehouseAllocation(),
         '/warehouse_tag_count': (context) => WarehosueTagCount(),
