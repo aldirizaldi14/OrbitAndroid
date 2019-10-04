@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -23,7 +25,6 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
         "JOIN product ON product.product_id = transferdet.transferdet_product_id "
         "WHERE transferdet_transfer_id = ?", [id]
     );
-    print(data);
     setState(() {
       listData = data;
     });
@@ -58,7 +59,7 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
             Expanded(
               child: Center(
                 child: QrImage(
-                  data: listData.toString(),
+                  data: jsonEncode(listData),
                   version: QrVersions.auto,
                   size: 300.0,
                 ),

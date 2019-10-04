@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
 import 'package:sqflite/sqflite.dart';
 import 'helper/database_helper.dart';
 
@@ -54,7 +53,7 @@ class ProductionTransferState extends State<ProductionTransferClass> {
           itemBuilder: (context, index) {
             final p = listData[index];
             return Container(
-              color: p['transfer_id'].toString().isEmpty ? Colors.white : Colors.greenAccent,
+              color: p['transfer_updated_at'].toString().isEmpty ? Colors.white : Colors.greenAccent,
               child: InkWell(
                 child: Padding(
                     padding: const EdgeInsets.all(5.0),
@@ -65,7 +64,7 @@ class ProductionTransferState extends State<ProductionTransferClass> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(p['transfer_id'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
-                            Text(p['transfer_time'], style: TextStyle( fontSize: 12),),
+                            Text(p['transfer_time'].toString(), style: TextStyle( fontSize: 12),),
                           ],
                         ),
                         Icon(Icons.keyboard_arrow_right)
