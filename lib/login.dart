@@ -61,8 +61,8 @@ class LoginState extends State<LoginClass> {
                     if(res['success']){
                       Map<String, dynamic> user = res['message'];
                       SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
-                      _sharedPreferences.setInt('USER_ID', user['user_id']);
-                      _sharedPreferences.setInt('USER_GROUP_ID', int.parse(user['user_group_id']));
+                      _sharedPreferences.setInt('USER_ID', user['user_id'] is int ? user['user_id'] : int.parse(user['user_id']));
+                      _sharedPreferences.setInt('USER_GROUP_ID', user['user_group_id'] is int ? user['user_group_id'] : int.parse(user['user_group_id']));
                       _sharedPreferences.setString('USER_USERNAME', user['user_username']);
                       _sharedPreferences.setString('USER_FULLNAME', user['user_fullname']);
                       _sharedPreferences.setString('USER_TOKEN', user['api_token']);
