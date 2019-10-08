@@ -36,7 +36,7 @@ Widget menuDrawer(BuildContext context) {
                   child: Padding(
                       padding: EdgeInsets.all(5),
                       child: Image.asset(
-                        'assets/images/gobel.png', width: 70, height: 70,)
+                        'assets/images/logo.png', width: 70, height: 70,)
                   ),
                   elevation: 10,
                 ),
@@ -190,7 +190,7 @@ StaggeredGridView menuList(BuildContext context){
       menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
       menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
       menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
-      menuItems(context, 'assets/images/count.png', "Tag Count", '/warehouse_tag_count'),
+      //menuItems(context, 'assets/images/count.png', "Tag Count", '/warehouse_tag_count'),
       menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
       menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
     ],

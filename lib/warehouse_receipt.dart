@@ -53,7 +53,7 @@ class WarehouseReceiptState extends State<WarehouseReceiptClass> {
           itemBuilder: (context, index) {
             final p = listData[index];
             return Container(
-              color: int.parse(p['receipt_status']) == 1 ? Colors.greenAccent : Colors.redAccent,
+              color: p['receipt_status'] == 1 ? Colors.greenAccent : Colors.redAccent,
               child: InkWell(
                 child: Padding(
                     padding: const EdgeInsets.all(5.0),

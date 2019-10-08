@@ -35,7 +35,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
   Future<void> openScanner() async {
     String barcodeScanRes;
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true);
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true, ScanMode.DEFAULT);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }

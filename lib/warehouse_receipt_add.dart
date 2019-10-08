@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:unified_process/model/receipt_model.dart';
+import 'package:unified_process/model/receiptdet_model.dart';
 import 'package:unified_process/model/transfer_model.dart';
 import 'package:unified_process/model/transferdet_model.dart';
 import 'helper/database_helper.dart';
@@ -30,7 +32,7 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
   Future<void> openScanner() async {
     String barcodeScanRes;
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true);
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true, ScanMode.DEFAULT);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
@@ -46,15 +48,29 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
   }
 
   void saveData() async{
-    TransferModel transferModel = TransferModel.instance;
-    transferModel.transfer_code = new DateFormat("yyyyMMddhhmmss").format(new DateTime.now());
-    transferModel.transfer_time = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
-    int transfer_id = await widget.databaseHelper.insert(transferModel.tableName, transferModel.toMap());
-    if(transfer_id > 0){
-      Database db = await widget.databaseHelper.database;
-      await db.rawQuery("UPDATE transferdet SET transferdet_transfer_id = ? "
-          "WHERE transferdet_transfer_id IS NULL", [transfer_id]
-      );
+    ReceiptModel receiptModel = ReceiptModel.instance;
+    receiptModel.receipt_transfer_id = listData[0]['transferdet_transfer_id'];
+    receiptModel.receipt_code = new DateFormat("yyyyMMddhhmmss").format(new DateTime.now());
+    receiptModel.receipt_time = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
+    int receipt_id = await widget.databaseHelper.insert(receiptModel.tableName, receiptModel.toMap());
+    int status = 1;
+    if(receipt_id > 0){
+      for(int i =0; i < listData.length; i++){
+        ReceiptdetModel receiptdetModel = ReceiptdetModel.instance;
+        receiptdetModel.receiptdet_receipt_id = receipt_id;
+        receiptdetModel.receiptdet_product_id = listData[i]['product_id'];
+        receiptdetModel.receiptdet_transferdet_id = listData[i]['transferdet_id'];
+        receiptdetModel.receiptdet_qty = listData[i]['transferdet_qty'];
+        receiptdetModel.receiptdet_note = listData[i]['note'];
+        if(listData[i]['status'] == 2){
+          status = 2;
+        }
+        await widget.databaseHelper.insert(receiptdetModel.tableName, receiptdetModel.toMap());
+      }
+
+      receiptModel.receipt_id = receipt_id;
+      receiptModel.receipt_status = status;
+      await widget.databaseHelper.update(receiptModel.tableName, 'receipt_id', receiptModel.toMap());
       Navigator.pop(context);
     }
   }

@@ -195,7 +195,11 @@ class DatabaseHelper {
         "warehouse_id INTEGER,"
         "area_id INTEGER,"
         "product_id INTEGER,"
-        "quantity INTEGER"
+        "quantity INTEGER,"
+        "created_at TEXT,"
+        "created_by TEXT,"
+        "updated_at TEXT,"
+        "updated_by TEXT"
         ")"
     );
   }

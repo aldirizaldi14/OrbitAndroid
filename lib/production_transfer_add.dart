@@ -41,7 +41,7 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
     TextEditingController qtyController = TextEditingController();
     String barcodeScanRes;
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true);
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true, ScanMode.DEFAULT);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
