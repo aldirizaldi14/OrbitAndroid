@@ -23,8 +23,8 @@ void main(){
       title: '',
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginClass(),
-        '/menu': (context) => MenuClass(),
+        '/': (context) => MenuClass(),
+        '/login': (context) => LoginClass(),
         '/product_search': (context) => ProductSearch(),
         '/production_output': (context) => ProductionOutputClass(),
         '/production_output_add': (context) => ProductionOutputAddClass(),

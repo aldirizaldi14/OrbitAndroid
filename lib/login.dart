@@ -1,7 +1,17 @@
-import 'package:flutter/material.dart';
-import 'logo.dart';
+import 'dart:convert';
 
-class LoginClass extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
+import 'logo.dart';
+import 'api_services.dart';
+
+class LoginClass extends StatefulWidget {
+  @override
+  LoginState createState() => LoginState();
+}
+
+class LoginState extends State<LoginClass> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -14,10 +24,9 @@ class LoginClass extends StatelessWidget {
             child: (
               TextField(
                 controller: usernameController,
-                obscureText: true,
                 decoration: InputDecoration(
                     labelText: 'Username',
-                    enabledBorder: OutlineInputBorder()
+                    enabledBorder: OutlineInputBorder(),
                 ),
               )
             ),
@@ -42,8 +51,26 @@ class LoginClass extends StatelessWidget {
               FlatButton(
                 color: Colors.blue,
                 child: Text('LOGIN'),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/menu');
+                onPressed: () async {
+                  if(usernameController.text.isEmpty || passwordController.text.isEmpty){
+                    Toast.show("Please complete all field.", context);
+                  }else {
+                    final response = await apiLastUpdate(usernameController.text, passwordController.text);
+                    print(response);
+                    Map<String, dynamic> res = json.decode(response);
+                    if(res['success']){
+                      Map<String, dynamic> user = res['message'];
+                      SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
+                      _sharedPreferences.setInt('USER_ID', user['user_id']);
+                      _sharedPreferences.setInt('USER_GROUP_ID', int.parse(user['user_group_id']));
+                      _sharedPreferences.setString('USER_USERNAME', user['user_username']);
+                      _sharedPreferences.setString('USER_FULLNAME', user['user_fullname']);
+                      _sharedPreferences.setString('USER_TOKEN', user['api_token']);
+                      Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+                    }else{
+                      Toast.show(res['message'], context);
+                    }
+                  }
                 },
               )
             ),
