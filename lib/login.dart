@@ -55,20 +55,24 @@ class LoginState extends State<LoginClass> {
                   if(usernameController.text.isEmpty || passwordController.text.isEmpty){
                     Toast.show("Please complete all field.", context);
                   }else {
-                    final response = await apiLastUpdate(usernameController.text, passwordController.text);
-                    print(response);
-                    Map<String, dynamic> res = json.decode(response);
-                    if(res['success']){
-                      Map<String, dynamic> user = res['message'];
-                      SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
-                      _sharedPreferences.setInt('USER_ID', user['user_id'] is int ? user['user_id'] : int.parse(user['user_id']));
-                      _sharedPreferences.setInt('USER_GROUP_ID', user['user_group_id'] is int ? user['user_group_id'] : int.parse(user['user_group_id']));
-                      _sharedPreferences.setString('USER_USERNAME', user['user_username']);
-                      _sharedPreferences.setString('USER_FULLNAME', user['user_fullname']);
-                      _sharedPreferences.setString('USER_TOKEN', user['api_token']);
-                      Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-                    }else{
-                      Toast.show(res['message'], context);
+                    final response = await apiLogin(usernameController.text, passwordController.text);
+                    if(response != ''){
+                      Map<String, dynamic> res = json.decode(response);
+                      if(res['success']){
+                        Map<String, dynamic> user = res['message'];
+                        SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
+                        _sharedPreferences.setInt('USER_ID', user['user_id'] is int ? user['user_id'] : int.parse(user['user_id']));
+                        _sharedPreferences.setInt('USER_GROUP_ID', user['user_group_id'] is int ? user['user_group_id'] : int.parse(user['user_group_id']));
+                        _sharedPreferences.setString('USER_USERNAME', user['user_username']);
+                        _sharedPreferences.setString('USER_FULLNAME', user['user_fullname']);
+                        _sharedPreferences.setString('USER_TOKEN', user['api_token']);
+                        _sharedPreferences.setString('LAST_UPDATE', '');
+                        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+                      }else{
+                        Toast.show(res['message'], context);
+                      }
+                    } else {
+                      Toast.show('Unable to process request', context);
                     }
                   }
                 },

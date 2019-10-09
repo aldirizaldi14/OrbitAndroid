@@ -42,14 +42,6 @@ class DatabaseHelper {
         "product_deleted_at TEXT"
         ")"
     );
-    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(1, "N0001", "Lampu Smart GSM 50watt")');
-    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(2, "N0002", "Lampu Smart GSM 90watt")');
-    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(3, "N0003", "Lampu Smart GSM 120watt")');
-    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(4, "N0004", "Lampu Smart RF 50watt")');
-    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(5, "N0005", "Lampu Smart RF 90watt")');
-    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(6, "N0006", "Lampu Smart RF 120watt")');
-    await db.rawInsert('INSERT INTO product(product_id, product_code, product_description) VALUES(7, "N0007", "Lampu Smart Solar")');
-
     await db.execute(
       "CREATE TABLE warehouse("
         "warehouse_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -60,13 +52,10 @@ class DatabaseHelper {
         "warehouse_created_by TEXT,"
         "warehouse_updated_at TEXT,"
         "warehouse_updated_by TEXT,"
-        "warehouse_deleted_at TEXT"
+        "warehouse_deleted_at TEXT,"
+        "warehouse_sync INTEGER"
         ")"
     );
-    await db.rawInsert('INSERT INTO warehouse(warehouse_id, warehouse_name, warehouse_description) VALUES(1, "Gudang 1", "")');
-    await db.rawInsert('INSERT INTO warehouse(warehouse_id, warehouse_name, warehouse_description) VALUES(2, "Gudang 2", "")');
-    await db.rawInsert('INSERT INTO warehouse(warehouse_id, warehouse_name, warehouse_description) VALUES(3, "Gudang 3", "")');
-
     await db.execute(
       "CREATE TABLE area("
         "area_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -81,13 +70,6 @@ class DatabaseHelper {
         "area_deleted_at TEXT"
         ")"
     );
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(1, "Area 1A", "", 1)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(2, "Area 1B", "", 1)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(3, "Area 2A", "", 2)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(4, "Area 2B", "", 2)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(5, "Area 3A", "", 3)');
-    await db.rawInsert('INSERT INTO area(area_id, area_name, area_description, area_warehouse_id) VALUES(6, "Area 3B", "", 3)');
-
     await db.execute(
         "CREATE TABLE line("
             "line_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -101,10 +83,6 @@ class DatabaseHelper {
             "line_deleted_at TEXT"
             ")"
     );
-    await db.rawInsert('INSERT INTO line(line_id, line_name, line_description) VALUES(1, "Line A", "")');
-    await db.rawInsert('INSERT INTO line(line_id, line_name, line_description) VALUES(2, "Line B", "")');
-    await db.rawInsert('INSERT INTO line(line_id, line_name, line_description) VALUES(3, "Line C", "")');
-
     await db.execute(
       "CREATE TABLE production("
         "production_id INTEGER PRIMARY KEY AUTOINCREMENT,"

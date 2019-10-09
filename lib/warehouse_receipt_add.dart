@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:unified_process/model/area_product_qty_model.dart';
 import 'package:unified_process/model/receipt_model.dart';
 import 'package:unified_process/model/receiptdet_model.dart';
 import 'package:unified_process/model/transfer_model.dart';
@@ -53,6 +54,7 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
     receiptModel.receipt_code = new DateFormat("yyyyMMddhhmmss").format(new DateTime.now());
     receiptModel.receipt_time = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
     int receipt_id = await widget.databaseHelper.insert(receiptModel.tableName, receiptModel.toMap());
+    Database db = await widget.databaseHelper.database;
     int status = 1;
     if(receipt_id > 0){
       for(int i =0; i < listData.length; i++){
@@ -66,6 +68,19 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
           status = 2;
         }
         await widget.databaseHelper.insert(receiptdetModel.tableName, receiptdetModel.toMap());
+
+        // check if qty exist or not
+        final check = await db.rawQuery("SELECT * FROM area_product_qty "
+            "WHERE warehouse_id = 0 AND product_id = ? ", [listData[i]['product_id']]);
+        print(check);
+        if(check == null || check.length == 0){
+          await db.rawInsert('INSERT INTO area_product_qty(warehouse_id, area_id, product_id, quantity) VALUES(0, 0, ?, ?)', [listData[i]['product_id'], listData[i]['transferdet_qty']]);
+        }else{
+          AreaProductQtyModel d = AreaProductQtyModel.fromDb(check[0]);
+          int qty = d.quantity + listData[i]['transferdet_qty'];
+          await db.rawQuery("UPDATE area_product_qty SET quantity = ? "
+              "WHERE warehouse_id = 0 AND product_id = ? ", [qty, listData[i]['product_id']]);
+        }
       }
 
       receiptModel.receipt_id = receipt_id;

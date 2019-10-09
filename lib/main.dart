@@ -33,7 +33,7 @@ void main(){
         '/production_transfer_detail': (context) => ProductionTransferDetailClass(),
         '/warehouse_receipt': (context) => WarehouseReceiptClass(),
         '/warehouse_receipt_add': (context) => WarehouseReceiptAddClass(),
-        '/warehouse_allocation': (context) => WarehouseAllocation(),
+        '/warehouse_allocation': (context) => WarehouseAllocationClass(),
         '/warehouse_tag_count': (context) => WarehosueTagCount(),
         '/delivery': (context) => Delivery(),
         '/task': (context) => Delivery(),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unified_process/helper/database_helper.dart';
+import 'api_services.dart';
 
 class MenuClass extends StatefulWidget {
   @override
@@ -13,6 +16,8 @@ class MenuState extends State<MenuClass> {
   String user_name = '';
   String user_group_name = '';
   String last_update = '';
+  String token = '';
+  bool progress_sync = false;
 
   @override
   void initState() {
@@ -31,9 +36,27 @@ class MenuState extends State<MenuClass> {
         if(_sharedPreferences.getInt('USER_GROUP_ID') == 1){
           user_group_name = 'Admin';
         }
-        last_update = '2019-01-01 00:00:00';
+        last_update = _sharedPreferences.getString('LAST_UPDATE') ?? '-';
+        token = _sharedPreferences.getString('USER_TOKEN') ?? '';
       });
+      getData();
     }
+  }
+
+  void getData() async {
+    DatabaseHelper dbHelper = DatabaseHelper.instance;
+    setState(() {
+      progress_sync = true;
+    });
+    await apiSyncWarehouse(token, last_update, dbHelper);
+    await apiSyncArea(token, last_update, dbHelper);
+    await apiSyncLine(token, last_update, dbHelper);
+    await apiSyncProduct(token, last_update, dbHelper);
+    setState(() {
+      progress_sync = false;
+      last_update = DateFormat('yyyy-MM-dd kk:mm:ss').format(DateTime.now());
+      _sharedPreferences.setString('LAST_UPDATE', last_update);
+    });
   }
 
   @override
@@ -53,6 +76,9 @@ class MenuState extends State<MenuClass> {
                 child: Padding(
                   padding: EdgeInsets.all(10),
                   child: InkWell(
+                    onTap: () {
+                      getData();
+                    },
                     child: Row(
                       children: <Widget>[
                         Expanded(
@@ -149,56 +175,57 @@ class MenuState extends State<MenuClass> {
       ),
     );
   }
-}
 
-Widget menuItems(BuildContext context, String icon, String title, String route){
-  return Material(
-    color: Colors.white,
-    elevation: 10,
-    borderRadius: BorderRadius.circular(24),
-    child: InkWell(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(5),
-              child: Image.asset(icon, width: 75, height: 75, fit: BoxFit.fill),
-            ),
-            Text(title, style: TextStyle(fontWeight: FontWeight.bold),)
-          ],
-        )
-      ),
-      onTap: () {
-        if(route != ''){
-          Navigator.pushNamed(context, route);
-        } },
-    )
-  );
-}
+  Widget menuItems(BuildContext context, String icon, String title, String route){
+    return Material(
+      color: Colors.white,
+      elevation: 10,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(5),
+                child: Image.asset(icon, width: 75, height: 75, fit: BoxFit.fill),
+              ),
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold),)
+            ],
+          )
+        ),
+        onTap: () {
+          if(route != ''){
+            Navigator.pushNamed(context, route);
+          }
+        },
+      )
+    );
+  }
 
-StaggeredGridView menuList(BuildContext context){
-  return StaggeredGridView.count(
-    crossAxisCount: 2,
-    crossAxisSpacing: 10,
-    mainAxisSpacing: 10,
-    padding: EdgeInsets.all(10),
-    children: <Widget>[
-      menuItems(context, 'assets/images/production.png', "Output", '/production_output'),
-      menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
-      menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
-      menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
-      //menuItems(context, 'assets/images/count.png', "Tag Count", '/warehouse_tag_count'),
-      menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
-      menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
-    ],
-    staggeredTiles: [
-      StaggeredTile.extent(1, 125),
-      StaggeredTile.extent(1, 125),
-      StaggeredTile.extent(1, 125),
-      StaggeredTile.extent(1, 125),
-      StaggeredTile.extent(1, 125),
-      StaggeredTile.extent(1, 125),
-    ],
-  );
+  StaggeredGridView menuList(BuildContext context){
+    return StaggeredGridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      padding: EdgeInsets.all(10),
+      children: <Widget>[
+        menuItems(context, 'assets/images/production.png', "Output", '/production_output'),
+        menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
+        menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
+        menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
+        //menuItems(context, 'assets/images/count.png', "Tag Count", '/warehouse_tag_count'),
+        menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
+        menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
+      ],
+      staggeredTiles: [
+        StaggeredTile.extent(1, 125),
+        StaggeredTile.extent(1, 125),
+        StaggeredTile.extent(1, 125),
+        StaggeredTile.extent(1, 125),
+        StaggeredTile.extent(1, 125),
+        StaggeredTile.extent(1, 125),
+      ],
+    );
+  }
 }

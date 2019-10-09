@@ -51,10 +51,10 @@ class ProductSearchState extends State<ProductSearch> {
 
   void fetchData(String product_code) async {
     Database db = await widget.databaseHelper.database;
-    final allRows = await db.rawQuery("SELECT warehouse_name, area_name, product_description, quantity FROM pallet_product_qty "
-        "LEFT JOIN product ON product.product_id = pallet_product_qty.product_id "
-        "LEFT JOIN area ON area.area_id = pallet_product_qty.area_id "
-        "LEFT JOIN warehouse ON warehouse.warehouse_id = pallet.pallet_warehouse_id "
+    final allRows = await db.rawQuery("SELECT warehouse_name, area_name, product_description, quantity FROM area_product_qty "
+        "LEFT JOIN product ON product.product_id = area_product_qty.product_id "
+        "LEFT JOIN area ON area.area_id = area_product_qty.area_id "
+        "LEFT JOIN warehouse ON warehouse.warehouse_id = area_product_qty.warehouse_id "
         "WHERE product_code = ?", [product_code]
     );
     print(allRows);
@@ -69,8 +69,8 @@ class ProductSearchState extends State<ProductSearch> {
       test.add(TableRow(
           children: [
             Center(child: Text(i.toString())),
-            Text(row['warehouse_name']),
-            Text(row['area_name']),
+            Text(row['warehouse_name'] ?? 'Unallocated'),
+            Text(row['area_name'] ?? ''),
             Center(child: Text(row['quantity'].toString()))
           ]
       ));
