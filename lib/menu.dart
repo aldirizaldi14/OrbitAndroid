@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 import 'package:unified_process/helper/database_helper.dart';
 import 'api_services.dart';
 
@@ -48,15 +49,34 @@ class MenuState extends State<MenuClass> {
     setState(() {
       progress_sync = true;
     });
-    await apiSyncWarehouse(token, last_update, dbHelper);
-    await apiSyncArea(token, last_update, dbHelper);
-    await apiSyncLine(token, last_update, dbHelper);
-    await apiSyncProduct(token, last_update, dbHelper);
-    setState(() {
-      progress_sync = false;
-      last_update = DateFormat('yyyy-MM-dd kk:mm:ss').format(DateTime.now());
-      _sharedPreferences.setString('LAST_UPDATE', last_update);
-    });
+    bool success = true;
+    if(! await apiSyncWarehouse(token, last_update, dbHelper)){
+      success = false;
+    }
+    if(! await apiSyncArea(token, last_update, dbHelper)){
+      success = false;
+    }
+    if(! await apiSyncLine(token, last_update, dbHelper)){
+      success = false;
+    }
+    if(! await apiSyncProduct(token, last_update, dbHelper)){
+      success = false;
+    }
+    if(! await apiSyncProduction(token, last_update, dbHelper)){
+      success = false;
+    }
+    if(success){
+      setState(() {
+        progress_sync = false;
+        last_update = DateFormat('yyyy-MM-dd kk:mm:ss').format(DateTime.now());
+        _sharedPreferences.setString('LAST_UPDATE', last_update);
+      });
+    }else{
+      Toast.show("Unable to process request", context);
+      setState(() {
+        progress_sync = false;
+      });
+    }
   }
 
   @override
@@ -73,27 +93,27 @@ class MenuState extends State<MenuClass> {
                 color: Colors.white,
                 elevation: 10,
                 borderRadius: BorderRadius.circular(5),
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: InkWell(
+                child: InkWell(
                     onTap: () {
                       getData();
                     },
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Center(
-                              child: Text('Last Update : ' + last_update)
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Center(
+                                child: progress_sync ? Text('Synchronizing data...') : Text('Last Update : ' + last_update)
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
-                          child: Icon(Icons.sync),
-                        ),
-                      ],
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                            child: Icon(Icons.sync),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                )
+                  )
               ),
             ),
             Expanded(

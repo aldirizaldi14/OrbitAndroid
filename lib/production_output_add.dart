@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:random_string/random_string.dart';
 import 'helper/database_helper.dart';
 import 'model/production_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -66,7 +67,9 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     production.production_line_id = formData['line_id'];
     production.production_shift = formData['shift'];
     production.production_qty = int.parse(formData['quantity']);
-    production.production_time = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
+    production.production_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(new DateTime.now());
+    production.production_code = randomAlpha(3) + new DateFormat("ddHHmm").format(new DateTime.now());
+    production.production_sync = 0;
     int production_id = await widget.databaseHelper.insert(production.tableName, production.toMap());
     if(production_id > 0){
       Navigator.pop(context);
@@ -152,11 +155,11 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                         ),
                         FormBuilderDropdown(
                           attribute: "batch",
-                          decoration: InputDecoration(labelText: "Batch Time"),
+                          decoration: InputDecoration(labelText: "Lot"),
                           validators: [
                             FormBuilderValidators.required()
                           ],
-                          items: [[1, 'Hour to 1'],[2, 'Hour to 2'],[3, 'Hour to 3'],[4, 'Hour to 4'],[5, 'Hour to 5']]
+                          items: [[1, 'Lot 1'],[2, 'Lot 2'],[3, 'Lot 3'],[4, 'Lot 4'],[5, 'Lot 5']]
                               .map((item) => DropdownMenuItem(
                               value: item[1],
                               child: Text(item[1].toString())

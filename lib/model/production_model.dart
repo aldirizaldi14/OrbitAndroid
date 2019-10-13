@@ -18,6 +18,7 @@ class ProductionModel {
   String production_updated_at;
   String production_updated_by;
   String production_deleted_at;
+  int production_sync;
 
   Map<String, dynamic> toMap() {
     return {
@@ -36,6 +37,7 @@ class ProductionModel {
       'production_updated_at': production_updated_at,
       'production_updated_by': production_updated_by,
       'production_deleted_at': production_deleted_at,
+      'production_sync': production_sync,
     };
   }
 
@@ -54,5 +56,6 @@ class ProductionModel {
         production_created_by = map['production_created_by'],
         production_updated_at = map['production_updated_at'],
         production_updated_by = map['production_updated_by'],
-        production_deleted_at = map['production_deleted_at'];
+        production_deleted_at = map['production_deleted_at'],
+        production_sync = map['production_sync'];
 }

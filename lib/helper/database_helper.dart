@@ -99,7 +99,8 @@ class DatabaseHelper {
         "production_created_by TEXT,"
         "production_updated_at TEXT,"
         "production_updated_by TEXT,"
-        "production_deleted_at TEXT"
+        "production_deleted_at TEXT,"
+        "production_sync INTEGER DEFAULT 0"
         ")"
     );
 

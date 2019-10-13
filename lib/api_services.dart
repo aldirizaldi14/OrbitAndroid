@@ -7,6 +7,7 @@ import 'package:unified_process/model/area_model.dart';
 import 'package:unified_process/model/line_model.dart';
 import 'package:unified_process/model/product_model.dart';
 import 'package:unified_process/model/production_model.dart';
+import 'package:unified_process/model/response.dart';
 import 'package:unified_process/model/warehouse_model.dart';
 import 'package:unified_process/helper/database_helper.dart';
 
@@ -18,14 +19,15 @@ Future<dynamic> apiLogin(String user, String passw) async {
     if (response.statusCode == 200) {
       return response.body;
     } else {
-      return '';
+      throw(response.body);
     }
   }catch(e){
+    print(e);
     return '';
   }
 }
 
-Future<dynamic> apiSyncWarehouse(String token, String last_update, DatabaseHelper dbHelper) async {
+Future<bool> apiSyncWarehouse(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
 
   try {
@@ -53,16 +55,17 @@ Future<dynamic> apiSyncWarehouse(String token, String last_update, DatabaseHelpe
       final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
       print(data);
        */
+      return true;
     } else {
-      return '';
+      throw(response.body);
     }
   }catch(e){
     print(e);
-    return '';
+    return false;
   }
 }
 
-Future<dynamic> apiSyncArea(String token, String last_update, DatabaseHelper dbHelper) async {
+Future<bool> apiSyncArea(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
 
   try {
@@ -90,16 +93,17 @@ Future<dynamic> apiSyncArea(String token, String last_update, DatabaseHelper dbH
       final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
       print(data);
        */
+      return true;
     } else {
-      return '';
+      throw(response.body);
     }
   }catch(e){
     print(e);
-    return '';
+    return false;
   }
 }
 
-Future<dynamic> apiSyncLine(String token, String last_update, DatabaseHelper dbHelper) async {
+Future<bool> apiSyncLine(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
 
   try {
@@ -127,16 +131,17 @@ Future<dynamic> apiSyncLine(String token, String last_update, DatabaseHelper dbH
       final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
       print(data);
        */
+      return true;
     } else {
-      return '';
+      throw(response.body);
     }
   }catch(e){
     print(e);
-    return '';
+    return false;
   }
 }
 
-Future<dynamic> apiSyncProduct(String token, String last_update, DatabaseHelper dbHelper) async {
+Future<bool> apiSyncProduct(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
 
   try {
@@ -164,21 +169,42 @@ Future<dynamic> apiSyncProduct(String token, String last_update, DatabaseHelper 
       final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
       print(data);
        */
+      return true;
     } else {
-      return '';
+      throw(response.body);
     }
   }catch(e){
     print(e);
-    return '';
+    return false;
   }
 }
 
-Future<dynamic> apiSyncProduction(String token, String last_update, DatabaseHelper dbHelper) async {
+Future<bool> apiSyncProduction(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
 
   try {
+    final data = await db.rawQuery("SELECT * FROM production WHERE production_sync = 0 OR production_sync IS NULL");
+    if(data.length > 0){
+      for(int i=0; i<data.length; i++){
+        ProductionModel datum = ProductionModel.fromDb(data[i]);
+        final resPost = await http.post(
+            api_url + "production/sync",
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer '+ token
+            },
+            body: {'data': json.encode(datum.toMap()) }
+        );
+        if(resPost.statusCode == 200 && json.decode(resPost.body)['success'] == true){
+          dbHelper.delete('production', 'production_id', datum.production_id);
+        }else{
+          throw(resPost.body);
+        }
+      }
+    }
+
     final response = await http.post(
-        api_url + "product/data",
+        api_url + "production/data",
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer '+ token
@@ -188,10 +214,10 @@ Future<dynamic> apiSyncProduction(String token, String last_update, DatabaseHelp
     if (response.statusCode == 200) {
       final res = json.decode(response.body);
       for(int i=0; i<res.length; i++){
-        ProductModel datum = ProductModel.fromDb(res[i]);
-        final data = await db.rawQuery("SELECT product_id FROM product WHERE product_id = ? ", [datum.product_id]);
+        ProductionModel datum = ProductionModel.fromDb(res[i]);
+        final data = await db.rawQuery("SELECT production_id FROM production WHERE production_id = ? ", [datum.production_id]);
         if(data.length > 0){
-          dbHelper.update(datum.tableName, 'product_id', datum.toMap());
+          dbHelper.update(datum.tableName, 'production_id', datum.toMap());
         }else{
           dbHelper.insert(datum.tableName, datum.toMap());
         }
@@ -201,11 +227,12 @@ Future<dynamic> apiSyncProduction(String token, String last_update, DatabaseHelp
       final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
       print(data);
        */
+      return true;
     } else {
-      return '';
+      throw(response.body);
     }
   }catch(e){
     print(e);
-    return '';
+    return false;
   }
 }
