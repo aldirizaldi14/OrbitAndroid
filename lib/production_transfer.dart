@@ -20,7 +20,6 @@ class ProductionTransferState extends State<ProductionTransferClass> {
         "FROM transfer "
         "ORDER BY transfer_time DESC"
     );
-    print(data);
     setState(() {
       listData = data;
     });

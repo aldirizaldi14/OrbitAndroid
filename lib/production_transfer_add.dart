@@ -27,7 +27,6 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
         "JOIN product ON product.product_id = transferdet.transferdet_product_id "
         "WHERE transferdet_transfer_id IS NULL"
     );
-    print(data);
     setState(() {
       listData = data;
     });
@@ -115,7 +114,6 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
     transferModel.transfer_sync = 0;
     int transfer_id = await widget.databaseHelper.insert(transferModel.tableName, transferModel.toMap());
     if(transfer_id > 0){
-      print(transfer_id);
       Database db = await widget.databaseHelper.database;
       await db.rawQuery("UPDATE transferdet SET transferdet_transfer_id = ? "
           "WHERE transferdet_transfer_id IS NULL", [transfer_id]

@@ -8,6 +8,8 @@ import 'package:unified_process/model/line_model.dart';
 import 'package:unified_process/model/product_model.dart';
 import 'package:unified_process/model/production_model.dart';
 import 'package:unified_process/model/response.dart';
+import 'package:unified_process/model/transfer_model.dart';
+import 'package:unified_process/model/transferdet_model.dart';
 import 'package:unified_process/model/warehouse_model.dart';
 import 'package:unified_process/helper/database_helper.dart';
 
@@ -90,7 +92,7 @@ Future<bool> apiSyncArea(String token, String last_update, DatabaseHelper dbHelp
       }
       /*
        * Uncomment for debug
-      final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
+      final data = await db.rawQuery("SELECT * FROM area ORDER BY area_id ASC");
       print(data);
        */
       return true;
@@ -128,7 +130,7 @@ Future<bool> apiSyncLine(String token, String last_update, DatabaseHelper dbHelp
       }
       /*
        * Uncomment for debug
-      final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
+      final data = await db.rawQuery("SELECT * FROM line ORDER BY line_id ASC");
       print(data);
        */
       return true;
@@ -166,7 +168,7 @@ Future<bool> apiSyncProduct(String token, String last_update, DatabaseHelper dbH
       }
       /*
        * Uncomment for debug
-      final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
+      final data = await db.rawQuery("SELECT * FROM product ORDER BY product_id ASC");
       print(data);
        */
       return true;
@@ -183,7 +185,7 @@ Future<bool> apiSyncProduction(String token, String last_update, DatabaseHelper 
   Database db = await dbHelper.database;
 
   try {
-    final data = await db.rawQuery("SELECT * FROM production WHERE production_sync = 0 OR production_sync IS NULL");
+    final data = await db.rawQuery("SELECT * FROM production WHERE production_sync = 0");
     if(data.length > 0){
       for(int i=0; i<data.length; i++){
         ProductionModel datum = ProductionModel.fromDb(data[i]);
@@ -224,9 +226,105 @@ Future<bool> apiSyncProduction(String token, String last_update, DatabaseHelper 
       }
       /*
        * Uncomment for debug
-      final data = await db.rawQuery("SELECT * FROM warehouse ORDER BY warehouse_id ASC");
+      final data = await db.rawQuery("SELECT * FROM production ORDER BY production_id ASC");
       print(data);
        */
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> apiSyncTransfer(String token, String last_update, DatabaseHelper dbHelper) async {
+  Database db = await dbHelper.database;
+
+  try {
+    final data = await db.rawQuery("SELECT * FROM transfer WHERE transfer_sync = 0");
+    if(data.length > 0){
+      for(int i=0; i<data.length; i++){
+        TransferModel datum = TransferModel.fromDb(data[i]);
+        final detail = await db.rawQuery("SELECT * FROM transferdet WHERE transferdet_transfer_id = ?", [datum.transfer_id]);
+        final resPost = await http.post(
+            api_url + "transfer/sync",
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer '+ token
+            },
+            body: {'data': json.encode(datum.toMap()), 'detail': json.encode(detail) }
+        );
+        if(resPost.statusCode == 200 && json.decode(resPost.body)['success'] == true){
+          dbHelper.delete('transfer', 'transfer_id', datum.transfer_id);
+          dbHelper.delete('transferdet', 'transferdet_transfer_id', datum.transfer_id);
+        }else{
+          throw(resPost.body);
+        }
+      }
+    }
+
+    final response = await http.post(
+        api_url + "transfer/data",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'last_update': last_update }
+    );
+    if (response.statusCode == 200) {
+      final res = json.decode(response.body);
+      for(int i=0; i<res.length; i++){
+        TransferModel datum = TransferModel.fromDb(res[i]);
+        final data = await db.rawQuery("SELECT transfer_id FROM transfer WHERE transfer_id = ? ", [datum.transfer_id]);
+        if(data.length > 0){
+          dbHelper.update(datum.tableName, 'transfer_id', datum.toMap());
+        }else{
+          dbHelper.insert(datum.tableName, datum.toMap());
+        }
+      }
+      /*
+       * Uncomment for debug */
+      final data = await db.rawQuery("SELECT * FROM transfer ORDER BY transfer_id ASC");
+      print(data);
+
+      final datadet = await db.rawQuery("SELECT * FROM transferdet ORDER BY transferdet_id ASC");
+      print(datadet);
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> apiSyncTransferdet(String token, String last_update, DatabaseHelper dbHelper) async {
+  Database db = await dbHelper.database;
+
+  try {
+    final response = await http.post(
+        api_url + "transfer/detail",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'last_update': last_update }
+    );
+    if (response.statusCode == 200) {
+      final res = json.decode(response.body);
+      for (int i = 0; i < res.length; i++) {
+        TransferdetModel datum = TransferdetModel.fromDb(res[i]);
+        final data = await db.rawQuery(
+            "SELECT transferdet_id FROM transferdet WHERE transferdet_id = ? ", [datum.transferdet_id]);
+        if (data.length > 0) {
+          dbHelper.update(datum.tableName, 'transferdet_id', datum.toMap());
+        } else {
+          dbHelper.insert(datum.tableName, datum.toMap());
+        }
+      }
       return true;
     } else {
       throw(response.body);
