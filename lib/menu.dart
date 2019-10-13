@@ -53,18 +53,14 @@ class MenuState extends State<MenuClass> {
     if(! await apiSyncWarehouse(token, last_update, dbHelper)){
       success = false;
     }
-    if(! await apiSyncArea(token, last_update, dbHelper)){
-      success = false;
+    // first request also used as check connection, if fail, stop the job
+    if(success){
+      if(! await apiSyncArea(token, last_update, dbHelper)){ success = false; }
+      if(! await apiSyncLine(token, last_update, dbHelper)){ success = false; }
+      if(! await apiSyncProduct(token, last_update, dbHelper)){ success = false; }
+      if(! await apiSyncProduction(token, last_update, dbHelper)){ success = false; }
     }
-    if(! await apiSyncLine(token, last_update, dbHelper)){
-      success = false;
-    }
-    if(! await apiSyncProduct(token, last_update, dbHelper)){
-      success = false;
-    }
-    if(! await apiSyncProduction(token, last_update, dbHelper)){
-      success = false;
-    }
+
     if(success){
       setState(() {
         progress_sync = false;

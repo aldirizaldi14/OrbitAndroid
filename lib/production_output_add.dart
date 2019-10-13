@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 
 class ProductionOutputAddClass extends StatefulWidget {
   ProductionOutputAddClass({ Key key}) : super (key: key);
-  final String title = 'Production Output Add';
+  final String title = 'Add Production Output';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
   @override

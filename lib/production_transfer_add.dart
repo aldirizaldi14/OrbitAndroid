@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:random_string/random_string.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unified_process/model/transfer_model.dart';
 import 'package:unified_process/model/transferdet_model.dart';
@@ -9,8 +10,8 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:toast/toast.dart';
 
 class ProductionTransferAddClass extends StatefulWidget {
-  ProductionTransferAddClass({ Key key}) : super (key: key);
-  final String title = 'Transfer Add';
+  ProductionTransferAddClass({ Key key }) : super (key: key);
+  final String title = 'Add Transfer';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
   @override
@@ -24,6 +25,7 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
     final data = await db.rawQuery("SELECT transferdet_id, transferdet_transfer_id, transferdet_qty, product_id, product_code "
         "FROM transferdet "
         "JOIN product ON product.product_id = transferdet.transferdet_product_id "
+        "WHERE transferdet_transfer_id IS NULL"
     );
     print(data);
     setState(() {
@@ -49,7 +51,7 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
     if (!mounted) return;
 
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT product_id, product_code "
+    final data = await db.rawQuery("SELECT product_id, product_code, product_description "
         "FROM product "
         "WHERE product_code = ? AND product_deleted_at IS NULL", [barcodeScanRes]
     );
@@ -58,19 +60,27 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Input Quantity'),
+            title: Text(data[0]['product_description'].toString()),
             content: new Row(
               children: <Widget>[
                 new Expanded(
                     child: new TextField(
                       autofocus: true,
-                      decoration: new InputDecoration(labelText: ''),
+                      decoration: new InputDecoration(labelText: 'Input quantity'),
                       controller: qtyController,
+                      keyboardType: TextInputType.numberWithOptions(),
                     )
                 )
               ],
             ),
             actions: <Widget>[
+              FlatButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  qtyController.text = '';
+                  Navigator.of(context).pop();
+                },
+              ),
               FlatButton(
                 child: Text('Add'),
                 onPressed: () {
@@ -82,14 +92,16 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
         },
       );
 
-      TransferdetModel transferdetModel = TransferdetModel.instance;
-      transferdetModel.transferdet_product_id = data[0]['product_id'];
-      transferdetModel.transferdet_qty = int.parse(qtyController.text);
-      int transferdet_id = await widget.databaseHelper.insert(transferdetModel.tableName, transferdetModel.toMap());
-      if(transferdet_id > 0){
-        fetchData();
-      }else{
-        Toast.show("Unable to save data", context);
+      if(qtyController.text != ''){
+        TransferdetModel transferdetModel = TransferdetModel.instance;
+        transferdetModel.transferdet_product_id = data[0]['product_id'];
+        transferdetModel.transferdet_qty = int.parse(qtyController.text);
+        int transferdet_id = await widget.databaseHelper.insert(transferdetModel.tableName, transferdetModel.toMap());
+        if(transferdet_id > 0){
+          fetchData();
+        }else{
+          Toast.show("Unable to save data", context);
+        }
       }
     } else {
       Toast.show("Product invalid", context);
@@ -98,10 +110,12 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
 
   void saveData() async{
     TransferModel transferModel = TransferModel.instance;
-    transferModel.transfer_code = new DateFormat("yyyyMMddhhmmss").format(new DateTime.now());
-    transferModel.transfer_time = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
+    transferModel.transfer_code = randomAlpha(3) + new DateFormat("ddHHmm").format(new DateTime.now());
+    transferModel.transfer_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(new DateTime.now());
+    transferModel.transfer_sync = 0;
     int transfer_id = await widget.databaseHelper.insert(transferModel.tableName, transferModel.toMap());
     if(transfer_id > 0){
+      print(transfer_id);
       Database db = await widget.databaseHelper.database;
       await db.rawQuery("UPDATE transferdet SET transferdet_transfer_id = ? "
           "WHERE transferdet_transfer_id IS NULL", [transfer_id]
@@ -166,9 +180,32 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
               width: double.infinity,
               child: RaisedButton(
                 color: Colors.blue,
-                onPressed: () {
+                onPressed: () async {
                   if(listData.length > 0) {
-                    saveData();
+                    await showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Confirm !'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            FlatButton(
+                              color: Colors.lightBlueAccent,
+                              child: Text('Yes'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                saveData();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   }else{
                     Toast.show('Add some data', context);
                   }

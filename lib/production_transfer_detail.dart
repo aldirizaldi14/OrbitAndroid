@@ -8,7 +8,9 @@ import 'helper/database_helper.dart';
 import 'model/transfer_model.dart';
 
 class ProductionTransferDetailClass extends StatefulWidget {
-  ProductionTransferDetailClass({ Key key}) : super (key: key);
+  int transferId;
+
+  ProductionTransferDetailClass({ Key key, this.transferId }) : super (key: key);
   final String title = 'Transfer Detail';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
@@ -18,38 +20,35 @@ class ProductionTransferDetailClass extends StatefulWidget {
 
 class ProductionTransferDetailState extends State<ProductionTransferDetailClass> {
   List listData = [];
-  void fetchData(id) async {
+  void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT transferdet_id, transferdet_transfer_id, transferdet_qty, product_id, product_code "
+    final data = await db.rawQuery("SELECT transferdet_id AS i, transferdet_transfer_id AS t, transferdet_qty AS q, product_id AS p, product_code AS c "
         "FROM transferdet "
         "JOIN product ON product.product_id = transferdet.transferdet_product_id "
-        "WHERE transferdet_transfer_id = ?", [id]
+        "WHERE transferdet_transfer_id = ?", [widget.transferId]
     );
     setState(() {
       listData = data;
     });
   }
 
-  void saveData(id) async{
-    TransferModel transferModel = TransferModel.instance;
-    transferModel.transfer_id = id;
-    transferModel.transfer_updated_at = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
-    int transfer_id = await widget.databaseHelper.update(transferModel.tableName, 'transfer_id', transferModel.toMap());
-    if(transfer_id > 0){
-      Navigator.pop(context);
-    }
+  void saveData() async {
+    Database db = await widget.databaseHelper.database;
+    String transfer_at = new DateFormat("yyyy-MM-dd HH:mm:ss").format(new DateTime.now());
+    await db.rawQuery("UPDATE transfer SET transfer_sent_at = ? "
+        "WHERE transfer_id = ?", [transfer_at, widget.transferId]
+    );
+    Navigator.pop(context);
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
-    final List args = ModalRoute.of(context).settings.arguments;
-    fetchData(args[0]);
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
@@ -61,7 +60,7 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
                 child: QrImage(
                   data: jsonEncode(listData),
                   version: QrVersions.auto,
-                  size: 300.0,
+                  size: double.infinity,
                 ),
               ),
             ),
@@ -69,8 +68,31 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
               width: double.infinity,
               child: RaisedButton(
                 color: Colors.blue,
-                onPressed: () {
-                  saveData(args[0]);
+                onPressed: () async {
+                  await showDialog<void>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Confirm !'),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            color: Colors.lightBlueAccent,
+                            child: Text('Yes'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              saveData();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 child: Text('Already Sent', style: TextStyle(color: Colors.white),),
               ),

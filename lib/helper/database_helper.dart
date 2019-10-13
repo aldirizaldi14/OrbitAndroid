@@ -109,13 +109,15 @@ class DatabaseHelper {
         "transfer_id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "transfer_code TEXT,"
         "transfer_time TEXT,"
+        "transfer_sent_at TEXT,"
         "transfer_user_id INTEGER,"
         "transfer_server_id INTEGER,"
         "transfer_created_at TEXT,"
         "transfer_created_by TEXT,"
         "transfer_updated_at TEXT,"
         "transfer_updated_by TEXT,"
-        "transfer_deleted_at TEXT"
+        "transfer_deleted_at TEXT,"
+        "transfer_sync INTEGER DEFAULT 0"
         ")"
     );
 
@@ -131,7 +133,8 @@ class DatabaseHelper {
         "transferdet_created_by TEXT,"
         "transferdet_updated_at TEXT,"
         "transferdet_updated_by TEXT,"
-        "transferdet_deleted_at TEXT"
+        "transferdet_deleted_at TEXT,"
+        "transferdet_sync INTEGER DEFAULT 0"
         ")"
     );
 

@@ -15,6 +15,7 @@ class LoginClass extends StatefulWidget {
 class LoginState extends State<LoginClass> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool process = false;
 
   Container loginField(BuildContext context){
     return Container(
@@ -51,12 +52,21 @@ class LoginState extends State<LoginClass> {
             child: (
               FlatButton(
                 color: Colors.blue,
-                child: Text('LOGIN'),
+                child: process ? Text('Processing') : Text('LOGIN'),
                 onPressed: () async {
+                  if(process){
+                    return;
+                  }
                   if(usernameController.text.isEmpty || passwordController.text.isEmpty){
                     Toast.show("Please complete all field.", context);
                   }else {
+                    setState(() {
+                      process = true;
+                    });
                     final response = await apiLogin(usernameController.text, passwordController.text);
+                    setState(() {
+                      process = false;
+                    });
                     if(response != ''){
                       Map<String, dynamic> res = json.decode(response);
                       if(res['success']){
