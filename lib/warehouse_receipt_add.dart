@@ -2,12 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:random_string/random_string.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unified_process/model/area_product_qty_model.dart';
 import 'package:unified_process/model/receipt_model.dart';
 import 'package:unified_process/model/receiptdet_model.dart';
-import 'package:unified_process/model/transfer_model.dart';
-import 'package:unified_process/model/transferdet_model.dart';
 import 'helper/database_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -23,6 +22,7 @@ class WarehouseReceiptAddClass extends StatefulWidget {
 }
 
 class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
+  String transferCode;
   List listData = [];
   @override
   initState() {
@@ -40,9 +40,13 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
 
     if (!mounted) return;
 
-    final data = json.decode(barcodeScanRes).cast<Map<String, dynamic>>();
+    final scanData = barcodeScanRes.split("###");
+    final data = json.decode(scanData[1]).cast<Map<String, dynamic>>();
+    print(scanData[0]);
+    print(data);
     if(data.length > 0) {
       setState(() {
+        transferCode = scanData[0];
         listData = data;
       });
     }
@@ -50,36 +54,37 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
 
   void saveData() async{
     ReceiptModel receiptModel = ReceiptModel.instance;
-    receiptModel.receipt_transfer_id = listData[0]['transferdet_transfer_id'];
-    receiptModel.receipt_code = new DateFormat("yyyyMMddhhmmss").format(new DateTime.now());
-    receiptModel.receipt_time = new DateFormat("yyyy-MM-dd hh:mm:ss").format(new DateTime.now());
+    receiptModel.receipt_transfer_code = transferCode;
+    receiptModel.receipt_code = randomAlpha(3) + new DateFormat("ddHHmm").format(new DateTime.now());
+    receiptModel.receipt_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(new DateTime.now());
+    receiptModel.receipt_sync = 0;
     int receipt_id = await widget.databaseHelper.insert(receiptModel.tableName, receiptModel.toMap());
     Database db = await widget.databaseHelper.database;
     int status = 1;
     if(receipt_id > 0){
       for(int i =0; i < listData.length; i++){
+        print(listData[i]);
         ReceiptdetModel receiptdetModel = ReceiptdetModel.instance;
         receiptdetModel.receiptdet_receipt_id = receipt_id;
-        receiptdetModel.receiptdet_product_id = listData[i]['product_id'];
-        receiptdetModel.receiptdet_transferdet_id = listData[i]['transferdet_id'];
-        receiptdetModel.receiptdet_qty = listData[i]['transferdet_qty'];
-        receiptdetModel.receiptdet_note = listData[i]['note'];
-        if(listData[i]['status'] == 2){
+        receiptdetModel.receiptdet_product_id = listData[i]['p'];
+        receiptdetModel.receiptdet_transferdet_id = listData[i]['i'];
+        receiptdetModel.receiptdet_qty = listData[i]['q'] is int ? listData[i]['q'] : int.parse(listData[i]['q']);
+        receiptdetModel.receiptdet_note = (listData[i]['n'] is int ? listData[i]['n'] : int.parse(listData[i]['n'])).toString();
+        if(listData[i]['s'] == 2){
           status = 2;
         }
         await widget.databaseHelper.insert(receiptdetModel.tableName, receiptdetModel.toMap());
 
         // check if qty exist or not
         final check = await db.rawQuery("SELECT * FROM area_product_qty "
-            "WHERE warehouse_id = 0 AND product_id = ? ", [listData[i]['product_id']]);
-        print(check);
+            "WHERE warehouse_id = 0 AND product_id = ? ", [listData[i]['p']]);
         if(check == null || check.length == 0){
-          await db.rawInsert('INSERT INTO area_product_qty(warehouse_id, area_id, product_id, quantity) VALUES(0, 0, ?, ?)', [listData[i]['product_id'], listData[i]['transferdet_qty']]);
+          await db.rawInsert('INSERT INTO area_product_qty(warehouse_id, area_id, product_id, quantity) VALUES(0, 0, ?, ?)', [listData[i]['p'], listData[i]['q']]);
         }else{
           AreaProductQtyModel d = AreaProductQtyModel.fromDb(check[0]);
-          int qty = d.quantity + listData[i]['transferdet_qty'];
+          int qty = d.quantity + receiptdetModel.receiptdet_qty;
           await db.rawQuery("UPDATE area_product_qty SET quantity = ? "
-              "WHERE warehouse_id = 0 AND product_id = ? ", [qty, listData[i]['product_id']]);
+              "WHERE warehouse_id = 0 AND product_id = ? ", [qty, listData[i]['p']]);
         }
       }
 
@@ -96,11 +101,12 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Input some notes'),
+          title: Text('Input receipt amount'),
           content: new Row(
             children: <Widget>[
               new Expanded(
                   child: new TextField(
+                    keyboardType: TextInputType.numberWithOptions(),
                     autofocus: true,
                     decoration: new InputDecoration(labelText: ''),
                     controller: qtyController,
@@ -110,19 +116,27 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
           ),
           actions: <Widget>[
             FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              color: Colors.lightBlueAccent,
               child: Text('Save'),
               onPressed: () {
                 Navigator.of(context).pop();
+                setState(() {
+                  listData[index]['n'] = listData[index]['q'];
+                  listData[index]['q'] = qtyController.text;
+                  listData[index]['s'] = 2;
+                });
               },
             ),
           ],
         );
       },
     );
-    setState(() {
-      listData[index]['note'] = qtyController.text;
-      listData[index]['status'] = 2;
-    });
   }
 
   @override
@@ -143,24 +157,18 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
                 itemBuilder: (context, index) {
                   final p = listData[index];
                   return Container(
-                    color: (p['status'] == null ? 0 : p['status']) == 2 ? Colors.redAccent : Colors.white,
+                    color: (p['s'] == null ? 0 : p['s']) == 2 ? Colors.redAccent : Colors.transparent,
                     child: Padding(
                         padding: const EdgeInsets.all(5.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(p['product_code'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
-                                  Text(p['note'] == null ? '' : p['note'].toString(), style: TextStyle( fontSize: 12),),
-                                ],
-                              ),
+                              child: Text(p['c'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
                             ),
                             Padding(
                               padding: EdgeInsets.only(right: 20),
-                              child: Text(p['transferdet_qty'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                              child: Text(p['q'].toString() + (p['n'] == null ? '' : ' (' + p['n'].toString() + ')'), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
                             ),
                             GestureDetector(
                               child: Icon(Icons.assignment_late),

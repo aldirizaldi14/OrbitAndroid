@@ -4,7 +4,7 @@ import 'helper/database_helper.dart';
 
 class WarehouseReceiptClass extends StatefulWidget {
   WarehouseReceiptClass({ Key key}) : super (key: key);
-  final String title = 'Warehouse Receipt';
+  final String title = 'Receipt';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
   @override
@@ -15,7 +15,7 @@ class WarehouseReceiptState extends State<WarehouseReceiptClass> {
   List listData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT receipt_id, receipt_time, receipt_status "
+    final data = await db.rawQuery("SELECT receipt_id, receipt_code, receipt_time, receipt_status "
         "FROM receipt "
         "ORDER BY receipt_time DESC"
     );
@@ -63,7 +63,8 @@ class WarehouseReceiptState extends State<WarehouseReceiptClass> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(p['receipt_time'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                            Text(p['receipt_code'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                            Text(p['receipt_time'].toString(), style: TextStyle( fontSize: 12),),
                           ],
                         ),
                         Icon(Icons.keyboard_arrow_right)

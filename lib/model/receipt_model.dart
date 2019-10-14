@@ -8,6 +8,7 @@ class ReceiptModel {
   int receipt_status;
   String receipt_time;
   int receipt_transfer_id;
+  String receipt_transfer_code;
   int receipt_user_id;
   int receipt_server_id;
   String receipt_created_at;
@@ -15,6 +16,7 @@ class ReceiptModel {
   String receipt_updated_at;
   String receipt_updated_by;
   String receipt_deleted_at;
+  int receipt_sync;
 
   Map<String, dynamic> toMap() {
     return {
@@ -23,6 +25,7 @@ class ReceiptModel {
       'receipt_status': receipt_status,
       'receipt_time': receipt_time,
       'receipt_transfer_id': receipt_transfer_id,
+      'receipt_transfer_code': receipt_transfer_code,
       'receipt_user_id': receipt_user_id,
       'receipt_server_id': receipt_server_id,
       'receipt_created_at': receipt_created_at,
@@ -30,6 +33,7 @@ class ReceiptModel {
       'receipt_updated_at': receipt_updated_at,
       'receipt_updated_by': receipt_updated_by,
       'receipt_deleted_at': receipt_deleted_at,
+      'receipt_sync': receipt_sync,
     };
   }
 
@@ -39,11 +43,13 @@ class ReceiptModel {
         receipt_status = map['receipt_status'],
         receipt_time = map['receipt_time'],
         receipt_transfer_id = map['receipt_transfer_id'],
+        receipt_transfer_code = map['receipt_transfer_code'],
         receipt_user_id = map['receipt_user_id'],
         receipt_server_id = map['receipt_server_id'],
         receipt_created_at = map['receipt_created_at'],
         receipt_created_by = map['receipt_created_by'],
         receipt_updated_at = map['receipt_updated_at'],
         receipt_updated_by = map['receipt_updated_by'],
-        receipt_deleted_at = map['receipt_deleted_at'];
+        receipt_deleted_at = map['receipt_deleted_at'],
+        receipt_sync = map['receipt_sync'];
 }

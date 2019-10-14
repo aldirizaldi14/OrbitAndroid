@@ -143,6 +143,7 @@ class DatabaseHelper {
         "receipt_id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "receipt_code TEXT,"
         "receipt_transfer_id INTEGER,"
+        "receipt_transfer_code TEXT,"
         "receipt_user_id INTEGER,"
         "receipt_status INTEGER,"
         "receipt_time TEXT,"
@@ -151,7 +152,8 @@ class DatabaseHelper {
         "receipt_created_by TEXT,"
         "receipt_updated_at TEXT,"
         "receipt_updated_by TEXT,"
-        "receipt_deleted_at TEXT"
+        "receipt_deleted_at TEXT,"
+        "receipt_sync INTEGER DEFAULT 0"
         ")"
     );
 

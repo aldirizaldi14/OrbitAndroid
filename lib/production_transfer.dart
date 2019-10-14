@@ -74,7 +74,7 @@ class ProductionTransferState extends State<ProductionTransferClass> {
                 ),
                 onTap: () {
                   Navigator.of(context).push(
-                    new MaterialPageRoute(builder: (BuildContext context) => new ProductionTransferDetailClass(transferId: p['transfer_id']))
+                    new MaterialPageRoute(builder: (BuildContext context) => new ProductionTransferDetailClass(transferId: p['transfer_id'], transferCode: p['transfer_code']))
                   ).then((value) {
                     fetchData();
                   });

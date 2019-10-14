@@ -9,8 +9,9 @@ import 'model/transfer_model.dart';
 
 class ProductionTransferDetailClass extends StatefulWidget {
   int transferId;
+  String transferCode;
 
-  ProductionTransferDetailClass({ Key key, this.transferId }) : super (key: key);
+  ProductionTransferDetailClass({ Key key, this.transferId, this.transferCode }) : super (key: key);
   final String title = 'Transfer Detail';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
@@ -22,7 +23,7 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
   List listData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT transferdet_id AS i, transferdet_transfer_id AS t, transferdet_qty AS q, product_id AS p, product_code AS c "
+    final data = await db.rawQuery("SELECT transferdet_id AS i, transferdet_qty AS q, product_id AS p, product_code AS c "
         "FROM transferdet "
         "JOIN product ON product.product_id = transferdet.transferdet_product_id "
         "WHERE transferdet_transfer_id = ?", [widget.transferId]
@@ -58,7 +59,7 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
             Expanded(
               child: Center(
                 child: QrImage(
-                  data: jsonEncode(listData),
+                  data: widget.transferCode + '###' + jsonEncode(listData),
                   version: QrVersions.auto,
                   size: double.infinity,
                 ),
