@@ -9,7 +9,7 @@ import 'helper/database_helper.dart';
 
 class ProductSearch extends StatefulWidget {
   ProductSearch({ Key key}) : super (key: key);
-  final String title = 'Product Search';
+  final String title = 'Search Product';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
   @override
@@ -92,6 +92,14 @@ class ProductSearchState extends State<ProductSearch> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                scanBarcode();
+              },
+            )
+          ],
         ),
         /*floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
@@ -103,16 +111,6 @@ class ProductSearchState extends State<ProductSearch> {
           padding: EdgeInsets.all(5),
           child: Column(
             children: <Widget>[
-              SizedBox(
-                width: double.infinity,
-                child: RaisedButton(
-                  color: Colors.blue,
-                  child: Icon(FontAwesomeIcons.barcode, color: Colors.white,),
-                  onPressed: (){
-                    scanBarcode();
-                  },
-                ),
-              ),
               Text(productCode, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
               Text(description, style: TextStyle(fontSize: 12),),
               Table(

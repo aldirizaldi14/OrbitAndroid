@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:unified_process/model/allocation_model.dart';
+import 'package:unified_process/model/allocationdet_model.dart';
 import 'package:unified_process/model/area_model.dart';
 import 'package:unified_process/model/area_product_qty_model.dart';
 import 'package:unified_process/model/line_model.dart';
@@ -388,9 +390,10 @@ Future<bool> apiSyncReceipt(String token, String last_update, DatabaseHelper dbH
         }
       }
       /*
-       * Uncomment for debug */
+       * Uncomment for debug
       final data = await db.rawQuery("SELECT * FROM receipt ORDER BY receipt_id ASC");
       print(data);
+       */
       return true;
     } else {
       throw(response.body);
@@ -427,8 +430,108 @@ Future<bool> apiSyncReceiptdet(String token, String last_update, DatabaseHelper 
       }
       /*
        * Uncomment for debug
-      */
       final data = await db.rawQuery("SELECT * FROM receiptdet ORDER BY receiptdet_id ASC");
+      print(data);
+      */
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> apiSyncAllocation(String token, String last_update, DatabaseHelper dbHelper) async {
+  Database db = await dbHelper.database;
+
+  try {
+    final data = await db.rawQuery("SELECT * FROM allocation WHERE allocation_sync = 0");
+    print(data);
+    if(data.length > 0){
+      for(int i=0; i<data.length; i++){
+        AllocationModel datum = AllocationModel.fromDb(data[i]);
+        final detail = await db.rawQuery("SELECT * FROM allocationdet WHERE allocationdet_allocation_id = ?", [datum.allocation_id]);
+        print(detail);
+        final resPost = await http.post(
+            api_url + "allocation/sync",
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer '+ token
+            },
+            body: {'data': json.encode(datum.toMap()), 'detail': json.encode(detail) }
+        );
+        if(resPost.statusCode == 200 && json.decode(resPost.body)['success'] == true){
+          dbHelper.delete('allocation', 'allocation_id', datum.allocation_id);
+          dbHelper.delete('allocationdet', 'allocationdet_allocation_id', datum.allocation_id);
+        }else{
+          throw(resPost.body);
+        }
+      }
+    }
+
+    final response = await http.post(
+        api_url + "allocation/data",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'last_update': last_update }
+    );
+    if (response.statusCode == 200) {
+      final res = json.decode(response.body);
+      for(int i=0; i<res.length; i++){
+        AllocationModel datum = AllocationModel.fromDb(res[i]);
+        final data = await db.rawQuery("SELECT allocation_id FROM allocation WHERE allocation_id = ? ", [datum.allocation_id]);
+        if(data.length > 0){
+          dbHelper.update(datum.tableName, 'allocation_id', datum.toMap());
+        }else{
+          dbHelper.insert(datum.tableName, datum.toMap());
+        }
+      }
+      /*
+       * Uncomment for debug */
+      final data = await db.rawQuery("SELECT * FROM allocation ORDER BY allocation_id ASC");
+      print(data);
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> apiSyncAllocationdet(String token, String last_update, DatabaseHelper dbHelper) async {
+  Database db = await dbHelper.database;
+
+  try {
+    final response = await http.post(
+        api_url + "allocation/detail",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'last_update': last_update }
+    );
+    if (response.statusCode == 200) {
+      final res = json.decode(response.body);
+      for (int i = 0; i < res.length; i++) {
+        AllocationdetModel datum = AllocationdetModel.fromDb(res[i]);
+        final data = await db.rawQuery(
+            "SELECT allocationdet_id FROM allocationdet WHERE allocationdet_id = ? ", [datum.allocationdet_id]);
+        if (data.length > 0) {
+          dbHelper.update(datum.tableName, 'allocationdet_id', datum.toMap());
+        } else {
+          dbHelper.insert(datum.tableName, datum.toMap());
+        }
+      }
+      /*
+       * Uncomment for debug
+      */
+      final data = await db.rawQuery("SELECT * FROM allocationdet ORDER BY allocationdet_id ASC");
       print(data);
       return true;
     } else {
