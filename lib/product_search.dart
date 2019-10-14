@@ -54,7 +54,7 @@ class ProductSearchState extends State<ProductSearch> {
     final allRows = await db.rawQuery("SELECT warehouse_name, area_name, product_description, quantity FROM area_product_qty "
         "LEFT JOIN product ON product.product_id = area_product_qty.product_id "
         "LEFT JOIN area ON area.area_id = area_product_qty.area_id "
-        "LEFT JOIN warehouse ON warehouse.warehouse_id = area_product_qty.warehouse_id "
+        "LEFT JOIN warehouse ON warehouse.warehouse_id = area.area_warehouse_id "
         "WHERE product_code = ?", [product_code]
     );
     print(allRows);
@@ -68,10 +68,10 @@ class ProductSearchState extends State<ProductSearch> {
       AreaProductQtyModel rowData = AreaProductQtyModel.fromDb(row);
       test.add(TableRow(
           children: [
-            Center(child: Text(i.toString())),
-            Text(row['warehouse_name'] ?? 'Unallocated'),
-            Text(row['area_name'] ?? ''),
-            Center(child: Text(row['quantity'].toString()))
+            Padding(padding: EdgeInsets.all(5), child: Center(child: Text(i.toString())),),
+            Padding(padding: EdgeInsets.all(5), child: Text(row['warehouse_name'] ?? 'Unallocated'),),
+            Padding(padding: EdgeInsets.all(5), child: Text(row['area_name'] ?? ''),),
+            Padding(padding: EdgeInsets.all(5), child: Center(child: Text(row['quantity'].toString())),),
           ]
       ));
     });
