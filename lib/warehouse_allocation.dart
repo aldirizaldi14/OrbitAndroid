@@ -59,7 +59,7 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
         listData = data;
       });
     } else {
-      Toast.show("Product invalid", context);
+      Toast.show("Product doesn't have unallocated stock", context);
     }
   }
 

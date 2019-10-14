@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unified_process/model/area_model.dart';
+import 'package:unified_process/model/area_product_qty_model.dart';
 import 'package:unified_process/model/line_model.dart';
 import 'package:unified_process/model/product_model.dart';
 import 'package:unified_process/model/production_model.dart';
@@ -428,6 +429,40 @@ Future<bool> apiSyncReceiptdet(String token, String last_update, DatabaseHelper 
        * Uncomment for debug
       */
       final data = await db.rawQuery("SELECT * FROM receiptdet ORDER BY receiptdet_id ASC");
+      print(data);
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> apiSyncQty(String token, String last_update, DatabaseHelper dbHelper) async {
+  Database db = await dbHelper.database;
+
+  try {
+    final response = await http.post(
+        api_url + "qty/data",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'last_update': last_update }
+    );
+    if (response.statusCode == 200) {
+      await db.rawQuery("DELETE FROM area_product_qty");
+      final res = json.decode(response.body);
+      for (int i = 0; i < res.length; i++) {
+        AreaProductQtyModel datum = AreaProductQtyModel.fromDb(res[i]);
+        dbHelper.insert(datum.tableName, datum.toMap());
+      }
+      /*
+       * Uncomment for debug
+      */
+      final data = await db.rawQuery("SELECT * FROM area_product_qty ORDER BY area_id ASC");
       print(data);
       return true;
     } else {

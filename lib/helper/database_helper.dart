@@ -174,6 +174,40 @@ class DatabaseHelper {
         "receiptdet_deleted_at TEXT"
         ")"
     );
+
+    await db.execute(
+        "CREATE TABLE allocation("
+            "allocation_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "allocation_code TEXT,"
+            "allocation_product_id INTEGER,"
+            "allocation_user_id INTEGER,"
+            "allocation_time TEXT,"
+            "allocation_server_id INTEGER,"
+            "allocation_created_at TEXT,"
+            "allocation_created_by TEXT,"
+            "allocation_updated_at TEXT,"
+            "allocation_updated_by TEXT,"
+            "allocation_deleted_at TEXT,"
+            "allocation_sync INTEGER DEFAULT 0"
+            ")"
+    );
+
+    await db.execute(
+        "CREATE TABLE allocationdet("
+            "allocationdet_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "allocationdet_code TEXT,"
+            "allocationdet_allocation_id INTEGER,"
+            "allocationdet_area_id INTEGER,"
+            "allocationdet_qty INTEGER,"
+            "allocationdet_server_id INTEGER,"
+            "allocationdet_created_at TEXT,"
+            "allocationdet_created_by TEXT,"
+            "allocationdet_updated_at TEXT,"
+            "allocationdet_updated_by TEXT,"
+            "allocationdet_deleted_at TEXT"
+            ")"
+    );
+
     await db.execute(
       "CREATE TABLE area_product_qty("
         "warehouse_id INTEGER,"
