@@ -9,7 +9,7 @@ class Delivery extends StatelessWidget {
           title: Text(title),
         ),
         body: Center(
-          child: Text(title),
+          child: Text('Available Soon'),
         )
     );
   }
