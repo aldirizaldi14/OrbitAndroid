@@ -65,6 +65,8 @@ class MenuState extends State<MenuClass> {
       if(! await apiSyncReceiptdet(token, last_update, dbHelper)){ success = false; }
       if(! await apiSyncAllocation(token, last_update, dbHelper)){ success = false; }
       if(! await apiSyncAllocationdet(token, last_update, dbHelper)){ success = false; }
+      if(! await apiSyncDelivery(token, last_update, dbHelper)){ success = false; }
+      if(! await apiSyncDeliverydet(token, last_update, dbHelper)){ success = false; }
       if(! await apiSyncQty(token, last_update, dbHelper)){ success = false; }
     }
 

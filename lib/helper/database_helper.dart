@@ -209,6 +209,41 @@ class DatabaseHelper {
     );
 
     await db.execute(
+        "CREATE TABLE delivery("
+            "delivery_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "delivery_code TEXT,"
+            "delivery_time TEXT,"
+            "delivery_expedition TEXT,"
+            "delivery_destination TEXT,"
+            "delivery_city TEXT,"
+            "delivery_user_id INTEGER,"
+            "delivery_server_id INTEGER,"
+            "delivery_created_at TEXT,"
+            "delivery_created_by TEXT,"
+            "delivery_updated_at TEXT,"
+            "delivery_updated_by TEXT,"
+            "delivery_deleted_at TEXT,"
+            "delivery_sync INTEGER DEFAULT 0"
+            ")"
+    );
+
+    await db.execute(
+        "CREATE TABLE deliverydet("
+            "deliverydet_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "deliverydet_code TEXT,"
+            "deliverydet_delivery_id INTEGER,"
+            "deliverydet_product_id INTEGER,"
+            "deliverydet_qty INTEGER,"
+            "deliverydet_server_id INTEGER,"
+            "deliverydet_created_at TEXT,"
+            "deliverydet_created_by TEXT,"
+            "deliverydet_updated_at TEXT,"
+            "deliverydet_updated_by TEXT,"
+            "deliverydet_deleted_at TEXT"
+            ")"
+    );
+
+    await db.execute(
       "CREATE TABLE area_product_qty("
         "warehouse_id INTEGER,"
         "area_id INTEGER,"

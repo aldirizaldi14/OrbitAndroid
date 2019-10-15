@@ -7,6 +7,8 @@ import 'package:unified_process/model/allocation_model.dart';
 import 'package:unified_process/model/allocationdet_model.dart';
 import 'package:unified_process/model/area_model.dart';
 import 'package:unified_process/model/area_product_qty_model.dart';
+import 'package:unified_process/model/delivery_model.dart';
+import 'package:unified_process/model/deliverydet_model.dart';
 import 'package:unified_process/model/line_model.dart';
 import 'package:unified_process/model/product_model.dart';
 import 'package:unified_process/model/production_model.dart';
@@ -18,7 +20,8 @@ import 'package:unified_process/model/transferdet_model.dart';
 import 'package:unified_process/model/warehouse_model.dart';
 import 'package:unified_process/helper/database_helper.dart';
 
-String api_url = "http://192.168.1.9/api/";
+//String api_url = "http://192.168.1.9/api/";
+String api_url = "http://137.40.52.103/up/public/api/";
 
 Future<dynamic> apiLogin(String user, String passw) async {
   try{
@@ -532,6 +535,105 @@ Future<bool> apiSyncAllocationdet(String token, String last_update, DatabaseHelp
        * Uncomment for debug
       */
       final data = await db.rawQuery("SELECT * FROM allocationdet ORDER BY allocationdet_id ASC");
+      print(data);
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> apiSyncDelivery(String token, String last_update, DatabaseHelper dbHelper) async {
+  Database db = await dbHelper.database;
+
+  try {
+    final data = await db.rawQuery("SELECT * FROM delivery WHERE delivery_sync = 0");
+    print(data);
+    if(data.length > 0){
+      for(int i=0; i<data.length; i++){
+        DeliveryModel datum = DeliveryModel.fromDb(data[i]);
+        final detail = await db.rawQuery("SELECT * FROM deliverydet WHERE deliverydet_delivery_id = ?", [datum.delivery_id]);
+        final resPost = await http.post(
+            api_url + "delivery/sync",
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer '+ token
+            },
+            body: {'data': json.encode(datum.toMap()), 'detail': json.encode(detail) }
+        );
+        if(resPost.statusCode == 200 && json.decode(resPost.body)['success'] == true){
+          dbHelper.delete('delivery', 'delivery_id', datum.delivery_id);
+          dbHelper.delete('deliverydet', 'deliverydet_delivery_id', datum.delivery_id);
+        }else{
+          throw(resPost.body);
+        }
+      }
+    }
+
+    final response = await http.post(
+        api_url + "allocation/data",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'last_update': last_update }
+    );
+    if (response.statusCode == 200) {
+      final res = json.decode(response.body);
+      for(int i=0; i<res.length; i++){
+        DeliveryModel datum = DeliveryModel.fromDb(res[i]);
+        final data = await db.rawQuery("SELECT delivery_id FROM delivery WHERE delivery_id = ? ", [datum.delivery_id]);
+        if(data.length > 0){
+          dbHelper.update(datum.tableName, 'delivery_id', datum.toMap());
+        }else{
+          dbHelper.insert(datum.tableName, datum.toMap());
+        }
+      }
+      /*
+       * Uncomment for debug */
+      final data = await db.rawQuery("SELECT * FROM delivery ORDER BY delivery_id ASC");
+      print(data);
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> apiSyncDeliverydet(String token, String last_update, DatabaseHelper dbHelper) async {
+  Database db = await dbHelper.database;
+
+  try {
+    final response = await http.post(
+        api_url + "delivery/detail",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'last_update': last_update }
+    );
+    if (response.statusCode == 200) {
+      final res = json.decode(response.body);
+      for (int i = 0; i < res.length; i++) {
+        DeliverydetModel datum = DeliverydetModel.fromDb(res[i]);
+        final data = await db.rawQuery(
+            "SELECT deliverydet_id FROM deliverydet WHERE deliverydet_id = ? ", [datum.deliverydet_id]);
+        if (data.length > 0) {
+          dbHelper.update(datum.tableName, 'deliverydet_id', datum.toMap());
+        } else {
+          dbHelper.insert(datum.tableName, datum.toMap());
+        }
+      }
+      /*
+       * Uncomment for debug
+      */
+      final data = await db.rawQuery("SELECT * FROM deliverydet ORDER BY deliverydet_id ASC");
       print(data);
       return true;
     } else {
