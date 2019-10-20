@@ -38,12 +38,12 @@ class TransferModel {
         transfer_code = map['transfer_code'],
         transfer_time = map['transfer_time'],
         transfer_sent_at = map['transfer_sent_at'],
-        transfer_user_id = map['transfer_user_id'],
+        transfer_user_id = map['transfer_user_id'] is int ? map['transfer_user_id'] : (map['transfer_user_id'] == null ? 0 : int.parse(map['transfer_user_id'])),
         transfer_server_id = map['transfer_server_id'],
         transfer_created_at = map['transfer_created_at'],
         transfer_created_by = map['transfer_created_by'],
         transfer_updated_at = map['transfer_updated_at'],
         transfer_updated_by = map['transfer_updated_by'],
         transfer_deleted_at = map['transfer_deleted_at'],
-        transfer_sync = map['transfer_sync'];
+        transfer_sync = map['transfer_sync'] is int ? map['transfer_sync'] : int.parse(map['transfer_sync']);
 }

@@ -36,8 +36,8 @@ class AllocationModel {
   AllocationModel.fromDb(Map<String, dynamic> map)
       : allocation_id = map['allocation_id'],
         allocation_code = map['allocation_code'],
-        allocation_product_id = map['allocation_product_id'],
-        allocation_user_id = map['allocation_user_id'],
+        allocation_product_id = map['allocation_product_id'] is int ? map['allocation_product_id'] : (map['allocation_product_id'] == null ? 0 : int.parse(map['allocation_product_id'])),
+        allocation_user_id = map['allocation_user_id'] is int ? map['allocation_user_id'] : (map['allocation_user_id'] == null ? 0 : int.parse(map['allocation_user_id'])),
         allocation_time = map['allocation_time'],
         allocation_server_id = map['allocation_server_id'],
         allocation_created_at = map['allocation_created_at'],
@@ -45,5 +45,5 @@ class AllocationModel {
         allocation_updated_at = map['allocation_updated_at'],
         allocation_updated_by = map['allocation_updated_by'],
         allocation_deleted_at = map['allocation_deleted_at'],
-        allocation_sync = map['allocation_sync'];
+        allocation_sync = map['allocation_sync'] is int ? map['allocation_sync'] : (map['allocation_sync'] == null ? 0 : int.parse(map['allocation_sync']));
 }

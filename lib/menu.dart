@@ -15,6 +15,7 @@ class MenuState extends State<MenuClass> {
   SharedPreferences _sharedPreferences;
 
   String user_name = '';
+  int user_group_id = 0;
   String user_group_name = '';
   String last_update = '';
   String token = '';
@@ -34,8 +35,17 @@ class MenuState extends State<MenuClass> {
     }else{
       setState(() {
         user_name = _sharedPreferences.getString('USER_FULLNAME');
+        user_group_id = _sharedPreferences.getInt('USER_GROUP_ID');
         if(_sharedPreferences.getInt('USER_GROUP_ID') == 1){
           user_group_name = 'Admin';
+        }else if(_sharedPreferences.getInt('USER_GROUP_ID') == 2){
+          user_group_name = 'Production';
+        }else if(_sharedPreferences.getInt('USER_GROUP_ID') == 3){
+          user_group_name = 'Warehouse';
+        }else if(_sharedPreferences.getInt('USER_GROUP_ID') == 9){
+          user_group_name = 'Viewer';
+        }else{
+          user_group_name = '-';
         }
         last_update = _sharedPreferences.getString('LAST_UPDATE') ?? '-';
         token = _sharedPreferences.getString('USER_TOKEN') ?? '';
@@ -73,7 +83,7 @@ class MenuState extends State<MenuClass> {
     if(success){
       setState(() {
         progress_sync = false;
-        last_update = DateFormat('yyyy-MM-dd kk:mm:ss').format(DateTime.now());
+        last_update = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
         _sharedPreferences.setString('LAST_UPDATE', last_update);
       });
     }else{
@@ -229,28 +239,78 @@ class MenuState extends State<MenuClass> {
   }
 
   StaggeredGridView menuList(BuildContext context){
-    return StaggeredGridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      padding: EdgeInsets.all(10),
-      children: <Widget>[
-        menuItems(context, 'assets/images/production.png', "Output", '/production_output'),
-        menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
-        menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
-        menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
-        //menuItems(context, 'assets/images/count.png', "Tag Count", '/warehouse_tag_count'),
-        menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
-        menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
-      ],
-      staggeredTiles: [
-        StaggeredTile.extent(1, 125),
-        StaggeredTile.extent(1, 125),
-        StaggeredTile.extent(1, 125),
-        StaggeredTile.extent(1, 125),
-        StaggeredTile.extent(1, 125),
-        StaggeredTile.extent(1, 125),
-      ],
-    );
+    if(user_group_id == 1){
+      return StaggeredGridView.count(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        padding: EdgeInsets.all(10),
+        children: <Widget>[
+          menuItems(context, 'assets/images/production.png', "Output", '/production_output'),
+          menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
+          menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
+          menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
+          menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
+          menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
+        ],
+        staggeredTiles: [
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+        ],
+      );
+    }else if(user_group_id == 2){
+      return StaggeredGridView.count(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        padding: EdgeInsets.all(10),
+        children: <Widget>[
+          menuItems(context, 'assets/images/production.png', "Output", '/production_output'),
+          menuItems(context, 'assets/images/transfer.png', "Transfer", '/production_transfer'),
+          menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
+        ],
+        staggeredTiles: [
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+        ],
+      );
+    }else if(user_group_id == 3){
+      return StaggeredGridView.count(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        padding: EdgeInsets.all(10),
+        children: <Widget>[
+          menuItems(context, 'assets/images/receipt.png', "Receipt", '/warehouse_receipt'),
+          menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
+          menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
+          menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
+        ],
+        staggeredTiles: [
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+          StaggeredTile.extent(1, 125),
+        ],
+      );
+    }else{
+      return StaggeredGridView.count(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        padding: EdgeInsets.all(10),
+        children: <Widget>[
+          menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
+        ],
+        staggeredTiles: [
+          StaggeredTile.extent(1, 125),
+        ],
+      );
+    }
   }
 }

@@ -34,9 +34,9 @@ class AllocationdetModel {
   AllocationdetModel.fromDb(Map<String, dynamic> map)
       : allocationdet_id = map['allocationdet_id'],
         allocationdet_code = map['allocationdet_code'],
-        allocationdet_allocation_id = map['allocationdet_allocation_id'],
-        allocationdet_area_id = map['allocationdet_area_id'],
-        allocationdet_qty = map['allocationdet_qty'],
+        allocationdet_allocation_id = map['allocationdet_allocation_id'] is int ? map['allocationdet_allocation_id'] : (map['allocationdet_allocation_id'] == null ? 0 : int.parse(map['allocationdet_allocation_id'])),
+        allocationdet_area_id = map['allocationdet_area_id'] is int ? map['allocationdet_area_id'] : (map['allocationdet_area_id'] == null ? 0 : int.parse(map['allocationdet_area_id'])),
+        allocationdet_qty = map['allocationdet_qty'] is int ? map['allocationdet_qty'] : (map['allocationdet_qty'] == null ? 0 : int.parse(map['allocationdet_qty'])),
         allocationdet_server_id = map['allocationdet_server_id'],
         allocationdet_created_at = map['allocationdet_created_at'],
         allocationdet_created_by = map['allocationdet_created_by'],

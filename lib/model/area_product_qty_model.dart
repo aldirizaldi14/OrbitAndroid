@@ -20,10 +20,10 @@ class AreaProductQtyModel {
   }
 
   AreaProductQtyModel.fromDb(Map<String, dynamic> map)
-      : warehouse_id = map['warehouse_id'],
-        area_id = map['area_id'],
-        product_id = map['product_id'],
-        quantity = map['quantity'];
+      : warehouse_id = map['warehouse_id'] is int ? map['warehouse_id'] : (map['warehouse_id'] == null ? 0 : int.parse(map['warehouse_id'])),
+        area_id = map['area_id'] is int ? map['area_id'] : (map['area_id'] == null ? 0 : int.parse(map['area_id'])),
+        product_id = map['product_id'] is int ? map['product_id'] : (map['product_id'] == null ? 0 : int.parse(map['product_id'])),
+        quantity = map['quantity'] is int ? map['quantity'] : (map['quantity'] == null ? 0 : int.parse(map['quantity']));
 
   AreaProductQtyModel.random(){
     this.warehouse_id = 1 + Random().nextInt(2);

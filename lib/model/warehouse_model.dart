@@ -36,5 +36,5 @@ class WarehouseModel {
         warehouse_updated_at = map['warehouse_updated_at'],
         warehouse_updated_by = map['warehouse_updated_by'],
         warehouse_deleted_at = map['warehouse_deleted_at'],
-        warehouse_sync = map['warehouse_sync'];
+        warehouse_sync = map['warehouse_sync'] is int ? map['warehouse_sync'] : (map['warehouse_sync'] == null ? 0 : int.parse(map['warehouse_sync']));
 }

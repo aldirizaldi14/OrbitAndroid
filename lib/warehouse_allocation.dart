@@ -144,6 +144,7 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
         "FROM area "
         "WHERE area_deleted_at IS NULL "
     );
+    print(data);
     for(int i=0; i < data.length; i++){
       setState(() {
         listArea.add(AreaModel.fromDb(data[i]));
@@ -218,6 +219,8 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
 
   void inputDetail() async{
     TextEditingController qtyController = TextEditingController();
+    print('area');
+    print(listArea);
     AreaModel dropdownValue = listArea[0];
     await showDialog<void>(
       context: context,

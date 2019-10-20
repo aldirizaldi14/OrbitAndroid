@@ -24,6 +24,8 @@ class WarehouseReceiptAddClass extends StatefulWidget {
 class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
   String transferCode;
   List listData = [];
+  bool isProcess = false;
+
   @override
   initState() {
     super.initState();
@@ -69,7 +71,7 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
         receiptdetModel.receiptdet_product_id = listData[i]['p'];
         receiptdetModel.receiptdet_transferdet_id = listData[i]['i'];
         receiptdetModel.receiptdet_qty = listData[i]['q'] is int ? listData[i]['q'] : int.parse(listData[i]['q']);
-        receiptdetModel.receiptdet_note = (listData[i]['n'] is int ? listData[i]['n'] : int.parse(listData[i]['n'])).toString();
+        receiptdetModel.receiptdet_note = '0';
         if(listData[i]['s'] == 2){
           status = 2;
         }
@@ -91,6 +93,9 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
       receiptModel.receipt_id = receipt_id;
       receiptModel.receipt_status = status;
       await widget.databaseHelper.update(receiptModel.tableName, 'receipt_id', receiptModel.toMap());
+      setState(() {
+        isProcess = false;
+      });
       Navigator.pop(context);
     }
   }
@@ -170,12 +175,12 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
                               padding: EdgeInsets.only(right: 20),
                               child: Text(p['q'].toString() + (p['n'] == null ? '' : ' (' + p['n'].toString() + ')'), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
                             ),
-                            GestureDetector(
+                            /*GestureDetector(
                               child: Icon(Icons.assignment_late),
                               onTap: () async {
                                 invalidData(index);
                               },
-                            )
+                            )*/
                           ],
                         )
                     ),
@@ -190,7 +195,12 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
                 color: Colors.blue,
                 onPressed: () {
                   if(listData.length > 0) {
-                    saveData();
+                    if(! isProcess){
+                      setState(() {
+                        isProcess = true;
+                      });
+                      saveData();
+                    }
                   }else{
                     Toast.show('Add some data', context);
                   }

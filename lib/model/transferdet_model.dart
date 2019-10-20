@@ -34,9 +34,9 @@ class TransferdetModel {
   TransferdetModel.fromDb(Map<String, dynamic> map)
       : transferdet_id = map['transferdet_id'],
         transferdet_code = map['transferdet_code'],
-        transferdet_transfer_id = map['transferdet_transfer_id'],
-        transferdet_product_id = map['transferdet_product_id'],
-        transferdet_qty = map['transferdet_qty'],
+        transferdet_transfer_id = map['transferdet_transfer_id'] is int ? map['transferdet_transfer_id'] : int.parse(map['transferdet_transfer_id']),
+        transferdet_product_id = map['transferdet_product_id'] is int ? map['transferdet_product_id'] : int.parse(map['transferdet_product_id']),
+        transferdet_qty = map['transferdet_qty'] is int ? map['transferdet_qty'] : int.parse(map['transferdet_qty']),
         transferdet_server_id = map['transferdet_server_id'],
         transferdet_created_at = map['transferdet_created_at'],
         transferdet_created_by = map['transferdet_created_by'],

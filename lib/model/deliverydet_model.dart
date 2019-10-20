@@ -34,9 +34,9 @@ class DeliverydetModel {
   DeliverydetModel.fromDb(Map<String, dynamic> map)
       : deliverydet_id = map['deliverydet_id'],
         deliverydet_code = map['deliverydet_code'],
-        deliverydet_delivery_id = map['deliverydet_delivery_id'],
-        deliverydet_product_id = map['deliverydet_product_id'],
-        deliverydet_qty = map['deliverydet_qty'],
+        deliverydet_delivery_id = map['deliverydet_delivery_id'] is int ? map['deliverydet_delivery_id'] : (map['deliverydet_delivery_id'] == null ? 0 : int.parse(map['deliverydet_delivery_id'])),
+        deliverydet_product_id = map['deliverydet_product_id'] is int ? map['deliverydet_product_id'] : (map['deliverydet_product_id'] == null ? 0 : int.parse(map['deliverydet_product_id'])),
+        deliverydet_qty = map['deliverydet_qty'] is int ? map['deliverydet_qty'] : (map['deliverydet_qty'] == null ? 0 : int.parse(map['deliverydet_qty'])),
         deliverydet_server_id = map['deliverydet_server_id'],
         deliverydet_created_at = map['deliverydet_created_at'],
         deliverydet_created_by = map['deliverydet_created_by'],

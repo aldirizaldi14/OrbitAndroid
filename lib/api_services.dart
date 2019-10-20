@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unified_process/model/allocation_model.dart';
 import 'package:unified_process/model/allocationdet_model.dart';
@@ -14,13 +13,12 @@ import 'package:unified_process/model/product_model.dart';
 import 'package:unified_process/model/production_model.dart';
 import 'package:unified_process/model/receipt_model.dart';
 import 'package:unified_process/model/receiptdet_model.dart';
-import 'package:unified_process/model/response.dart';
 import 'package:unified_process/model/transfer_model.dart';
 import 'package:unified_process/model/transferdet_model.dart';
 import 'package:unified_process/model/warehouse_model.dart';
 import 'package:unified_process/helper/database_helper.dart';
 
-//String api_url = "http://192.168.1.9/api/";
+//String api_url = "http://192.168.1.201/unified_process/public/api/";
 String api_url = "http://137.40.52.103/up/public/api/";
 
 Future<dynamic> apiLogin(String user, String passw) async {
@@ -39,7 +37,7 @@ Future<dynamic> apiLogin(String user, String passw) async {
 
 Future<bool> apiSyncWarehouse(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('warehouse');
   try {
     final response = await http.post(
       api_url + "warehouse/data",
@@ -77,7 +75,7 @@ Future<bool> apiSyncWarehouse(String token, String last_update, DatabaseHelper d
 
 Future<bool> apiSyncArea(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('area');
   try {
     final response = await http.post(
         api_url + "area/data",
@@ -115,7 +113,7 @@ Future<bool> apiSyncArea(String token, String last_update, DatabaseHelper dbHelp
 
 Future<bool> apiSyncLine(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('line');
   try {
     final response = await http.post(
         api_url + "line/data",
@@ -153,7 +151,7 @@ Future<bool> apiSyncLine(String token, String last_update, DatabaseHelper dbHelp
 
 Future<bool> apiSyncProduct(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('product');
   try {
     final response = await http.post(
         api_url + "product/data",
@@ -191,23 +189,25 @@ Future<bool> apiSyncProduct(String token, String last_update, DatabaseHelper dbH
 
 Future<bool> apiSyncProduction(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('production');
   try {
-    final data = await db.rawQuery("SELECT * FROM production WHERE production_sync = 0");
-    if(data.length > 0){
-      for(int i=0; i<data.length; i++){
+    final data = await db.rawQuery(
+        "SELECT * FROM production WHERE production_sync = 0");
+    if (data.length > 0) {
+      for (int i = 0; i < data.length; i++) {
         ProductionModel datum = ProductionModel.fromDb(data[i]);
         final resPost = await http.post(
             api_url + "production/sync",
             headers: {
               'Accept': 'application/json',
-              'Authorization': 'Bearer '+ token
+              'Authorization': 'Bearer ' + token
             },
-            body: {'data': json.encode(datum.toMap()) }
+            body: {'data': json.encode(datum.toMap())}
         );
-        if(resPost.statusCode == 200 && json.decode(resPost.body)['success'] == true){
+        if (resPost.statusCode == 200 &&
+            json.decode(resPost.body)['success'] == true) {
           dbHelper.delete('production', 'production_id', datum.production_id);
-        }else{
+        } else {
           throw(resPost.body);
         }
       }
@@ -217,18 +217,20 @@ Future<bool> apiSyncProduction(String token, String last_update, DatabaseHelper 
         api_url + "production/data",
         headers: {
           'Accept': 'application/json',
-          'Authorization': 'Bearer '+ token
+          'Authorization': 'Bearer ' + token
         },
-        body: {'last_update': last_update }
+        body: {'last_update': last_update}
     );
     if (response.statusCode == 200) {
       final res = json.decode(response.body);
-      for(int i=0; i<res.length; i++){
+      for (int i = 0; i < res.length; i++) {
         ProductionModel datum = ProductionModel.fromDb(res[i]);
-        final data = await db.rawQuery("SELECT production_id FROM production WHERE production_id = ? ", [datum.production_id]);
-        if(data.length > 0){
+        final data = await db.rawQuery(
+            "SELECT production_id FROM production WHERE production_id = ? ",
+            [datum.production_id]);
+        if (data.length > 0) {
           dbHelper.update(datum.tableName, 'production_id', datum.toMap());
-        }else{
+        } else {
           dbHelper.insert(datum.tableName, datum.toMap());
         }
       }
@@ -249,7 +251,7 @@ Future<bool> apiSyncProduction(String token, String last_update, DatabaseHelper 
 
 Future<bool> apiSyncTransfer(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('transfer');
   try {
     final data = await db.rawQuery("SELECT * FROM transfer WHERE transfer_sync = 0");
     if(data.length > 0){
@@ -309,7 +311,7 @@ Future<bool> apiSyncTransfer(String token, String last_update, DatabaseHelper db
 
 Future<bool> apiSyncTransferdet(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('transferdet');
   try {
     final response = await http.post(
         api_url + "transfer/detail",
@@ -348,14 +350,14 @@ Future<bool> apiSyncTransferdet(String token, String last_update, DatabaseHelper
 
 Future<bool> apiSyncReceipt(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
+  print('receipt');
 
-  try {
+    await db.rawQuery("DELETE FROM receipt where receipt_status IS NULL");
     final data = await db.rawQuery("SELECT * FROM receipt WHERE receipt_sync = 0 OR receipt_sync IS NULL");
     if(data.length > 0){
       for(int i=0; i<data.length; i++){
         ReceiptModel datum = ReceiptModel.fromDb(data[i]);
         final detail = await db.rawQuery("SELECT * FROM receiptdet WHERE receiptdet_receipt_id = ?", [datum.receipt_id]);
-        print(detail);
         final resPost = await http.post(
             api_url + "receipt/sync",
             headers: {
@@ -401,16 +403,13 @@ Future<bool> apiSyncReceipt(String token, String last_update, DatabaseHelper dbH
     } else {
       throw(response.body);
     }
-  }catch(e){
-    print(e);
-    return false;
-  }
+
 }
 
 Future<bool> apiSyncReceiptdet(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
+  print('receiptdet');
 
-  try {
     final response = await http.post(
         api_url + "receipt/detail",
         headers: {
@@ -440,23 +439,18 @@ Future<bool> apiSyncReceiptdet(String token, String last_update, DatabaseHelper 
     } else {
       throw(response.body);
     }
-  }catch(e){
-    print(e);
-    return false;
-  }
+
 }
 
 Future<bool> apiSyncAllocation(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('allocation');
   try {
     final data = await db.rawQuery("SELECT * FROM allocation WHERE allocation_sync = 0");
-    print(data);
     if(data.length > 0){
       for(int i=0; i<data.length; i++){
         AllocationModel datum = AllocationModel.fromDb(data[i]);
         final detail = await db.rawQuery("SELECT * FROM allocationdet WHERE allocationdet_allocation_id = ?", [datum.allocation_id]);
-        print(detail);
         final resPost = await http.post(
             api_url + "allocation/sync",
             headers: {
@@ -494,9 +488,10 @@ Future<bool> apiSyncAllocation(String token, String last_update, DatabaseHelper 
         }
       }
       /*
-       * Uncomment for debug */
+       * Uncomment for debug
       final data = await db.rawQuery("SELECT * FROM allocation ORDER BY allocation_id ASC");
       print(data);
+       */
       return true;
     } else {
       throw(response.body);
@@ -509,7 +504,7 @@ Future<bool> apiSyncAllocation(String token, String last_update, DatabaseHelper 
 
 Future<bool> apiSyncAllocationdet(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('allocationdet');
   try {
     final response = await http.post(
         api_url + "allocation/detail",
@@ -533,9 +528,9 @@ Future<bool> apiSyncAllocationdet(String token, String last_update, DatabaseHelp
       }
       /*
        * Uncomment for debug
-      */
       final data = await db.rawQuery("SELECT * FROM allocationdet ORDER BY allocationdet_id ASC");
       print(data);
+       */
       return true;
     } else {
       throw(response.body);
@@ -548,7 +543,7 @@ Future<bool> apiSyncAllocationdet(String token, String last_update, DatabaseHelp
 
 Future<bool> apiSyncDelivery(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('delivery');
   try {
     final data = await db.rawQuery("SELECT * FROM delivery WHERE delivery_sync = 0");
     print(data);
@@ -574,7 +569,7 @@ Future<bool> apiSyncDelivery(String token, String last_update, DatabaseHelper db
     }
 
     final response = await http.post(
-        api_url + "allocation/data",
+        api_url + "delivery/data",
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer '+ token
@@ -583,6 +578,7 @@ Future<bool> apiSyncDelivery(String token, String last_update, DatabaseHelper db
     );
     if (response.statusCode == 200) {
       final res = json.decode(response.body);
+      print(response.body);
       for(int i=0; i<res.length; i++){
         DeliveryModel datum = DeliveryModel.fromDb(res[i]);
         final data = await db.rawQuery("SELECT delivery_id FROM delivery WHERE delivery_id = ? ", [datum.delivery_id]);
@@ -593,9 +589,10 @@ Future<bool> apiSyncDelivery(String token, String last_update, DatabaseHelper db
         }
       }
       /*
-       * Uncomment for debug */
+       * Uncomment for debug
       final data = await db.rawQuery("SELECT * FROM delivery ORDER BY delivery_id ASC");
       print(data);
+      */
       return true;
     } else {
       throw(response.body);
@@ -608,7 +605,7 @@ Future<bool> apiSyncDelivery(String token, String last_update, DatabaseHelper db
 
 Future<bool> apiSyncDeliverydet(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('deliverydet');
   try {
     final response = await http.post(
         api_url + "delivery/detail",
@@ -632,9 +629,9 @@ Future<bool> apiSyncDeliverydet(String token, String last_update, DatabaseHelper
       }
       /*
        * Uncomment for debug
-      */
       final data = await db.rawQuery("SELECT * FROM deliverydet ORDER BY deliverydet_id ASC");
       print(data);
+       */
       return true;
     } else {
       throw(response.body);
@@ -647,7 +644,7 @@ Future<bool> apiSyncDeliverydet(String token, String last_update, DatabaseHelper
 
 Future<bool> apiSyncQty(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
-
+  print('qty');
   try {
     final response = await http.post(
         api_url + "qty/data",
@@ -666,9 +663,9 @@ Future<bool> apiSyncQty(String token, String last_update, DatabaseHelper dbHelpe
       }
       /*
        * Uncomment for debug
-      */
       final data = await db.rawQuery("SELECT * FROM area_product_qty ORDER BY area_id ASC");
       print(data);
+       */
       return true;
     } else {
       throw(response.body);

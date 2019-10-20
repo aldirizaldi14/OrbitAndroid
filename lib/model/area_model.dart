@@ -33,7 +33,7 @@ class AreaModel {
       : area_id = map['area_id'],
         area_name = map['area_name'],
         area_description = map['area_description'],
-        area_warehouse_id = map['area_warehouse_id'],
+        area_warehouse_id = map['area_warehouse_id'] is int ? map['area_warehouse_id'] : (map['area_warehouse_id'] == null ? 0 : int.parse(map['area_warehouse_id'])),
         area_server_id = map['area_server_id'],
         area_created_at = map['area_created_at'],
         area_created_by = map['area_created_by'],

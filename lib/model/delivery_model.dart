@@ -44,12 +44,12 @@ class DeliveryModel {
         delivery_expedition = map['delivery_expedition'],
         delivery_destination = map['delivery_destination'],
         delivery_city = map['delivery_city'],
-        delivery_user_id = map['delivery_user_id'],
+        delivery_user_id = map['delivery_user_id'] is int ? map['delivery_user_id'] : (map['delivery_user_id'] == null ? 0 : int.parse(map['delivery_user_id'])),
         delivery_server_id = map['delivery_server_id'],
         delivery_created_at = map['delivery_created_at'],
         delivery_created_by = map['delivery_created_by'],
         delivery_updated_at = map['delivery_updated_at'],
         delivery_updated_by = map['delivery_updated_by'],
         delivery_deleted_at = map['delivery_deleted_at'],
-        delivery_sync = map['delivery_sync'];
+        delivery_sync = map['delivery_sync'] is int ? map['delivery_sync'] : (map['delivery_sync'] == null ? 0 : int.parse(map['delivery_sync']));
 }
