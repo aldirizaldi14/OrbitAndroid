@@ -54,8 +54,8 @@ class ProductSearchState extends State<ProductSearch> {
     final allRows = await db.rawQuery("SELECT warehouse_name, area_name, product_description, quantity FROM area_product_qty "
         "LEFT JOIN product ON product.product_id = area_product_qty.product_id "
         "LEFT JOIN area ON area.area_id = area_product_qty.area_id "
-        "LEFT JOIN warehouse ON warehouse.warehouse_id = area.area_warehouse_id "
-        "WHERE product_code = ?", [product_code]
+        "LEFT JOIN warehouse ON warehouse.warehouse_id = area_product_qty.warehouse_id "
+        "WHERE product_code = ? AND quantity > 0", [product_code]
     );
     print(allRows);
 
@@ -63,9 +63,6 @@ class ProductSearchState extends State<ProductSearch> {
     int i = 0;
     allRows.forEach((row){
       ++i;
-      print(row);
-      print(i);
-      AreaProductQtyModel rowData = AreaProductQtyModel.fromDb(row);
       test.add(TableRow(
           children: [
             Padding(padding: EdgeInsets.all(5), child: Center(child: Text(i.toString())),),
@@ -78,13 +75,6 @@ class ProductSearchState extends State<ProductSearch> {
     setState(() {
       productData = test;
     });
-  }
-
-  void testinsert() async{
-    AreaProductQtyModel areaProductQtyModel = AreaProductQtyModel.instance;
-    areaProductQtyModel = AreaProductQtyModel.random();
-    int test = await widget.databaseHelper.insert(areaProductQtyModel.tableName, areaProductQtyModel.toMap());
-    print(test);
   }
 
   @override
@@ -101,18 +91,13 @@ class ProductSearchState extends State<ProductSearch> {
             )
           ],
         ),
-        /*floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: (){
-            testinsert();
-          },
-        ),*/
         body: Padding(
           padding: EdgeInsets.all(5),
           child: Column(
             children: <Widget>[
               Text(productCode, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
               Text(description, style: TextStyle(fontSize: 12),),
+              Container(height: 10,),
               Table(
                 border: TableBorder.all(color: Colors.black),
                 columnWidths: {0: FractionColumnWidth(.1), 2: FractionColumnWidth(.3), 3: FractionColumnWidth(.2)},
@@ -121,7 +106,7 @@ class ProductSearchState extends State<ProductSearch> {
                     children: [
                       Center(child: Text('#')),
                       Center(child: Text('Warehouse')),
-                      Center(child: Text('Pallet')),
+                      Center(child: Text('Area')),
                       Center(child: Text('Qty')),
                     ],
                   ),

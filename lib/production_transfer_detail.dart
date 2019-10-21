@@ -65,39 +65,6 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
                 ),
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              child: RaisedButton(
-                color: Colors.blue,
-                onPressed: () async {
-                  await showDialog<void>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Confirm !'),
-                        actions: <Widget>[
-                          FlatButton(
-                            child: Text('Cancel'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          FlatButton(
-                            color: Colors.lightBlueAccent,
-                            child: Text('Yes'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              saveData();
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Text('Already Sent', style: TextStyle(color: Colors.white),),
-              ),
-            ),
           ],
         ),
     );

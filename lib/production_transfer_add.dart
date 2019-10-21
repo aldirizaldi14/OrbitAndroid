@@ -52,7 +52,8 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery("SELECT product_id, product_code, product_description "
         "FROM product "
-        "WHERE product_code = ? AND product_deleted_at IS NULL", [barcodeScanRes]
+        "WHERE product_code = ? AND product_deleted_at IS NULL "
+        "AND product_id NOT IN (SELECT transferdet_product_id FROM transferdet WHERE transferdet_transfer_id IS NULL)", [barcodeScanRes]
     );
     if(data.length > 0){
       await showDialog<void>(
@@ -82,7 +83,7 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
               ),
               FlatButton(
                 child: Text('Add'),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(context).pop();
                 },
               ),
@@ -90,20 +91,33 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
           );
         },
       );
-
       if(qtyController.text != ''){
-        TransferdetModel transferdetModel = TransferdetModel.instance;
-        transferdetModel.transferdet_product_id = data[0]['product_id'];
-        transferdetModel.transferdet_qty = int.parse(qtyController.text);
-        int transferdet_id = await widget.databaseHelper.insert(transferdetModel.tableName, transferdetModel.toMap());
-        if(transferdet_id > 0){
-          fetchData();
+        Database db = await widget.databaseHelper.database;
+        final check = await db.rawQuery("SELECT quantity "
+            "FROM area_product_qty "
+            "WHERE warehouse_id = 1 AND product_id = ?", [data[0]['product_id']]
+        );
+        if(check.length > 0){
+          int q = check[0]['quantity'] is int ? check[0]['quantity'] : int.parse(check[0]['quantity']);
+          if(q >= int.parse(qtyController.text)){
+            TransferdetModel transferdetModel = TransferdetModel.instance;
+            transferdetModel.transferdet_product_id = data[0]['product_id'];
+            transferdetModel.transferdet_qty = int.parse(qtyController.text);
+            int transferdet_id = await widget.databaseHelper.insert(transferdetModel.tableName, transferdetModel.toMap());
+            if(transferdet_id > 0){
+              fetchData();
+            }else{
+              Toast.show("Unable to save data", context);
+            }
+          }else{
+            Toast.show("Quantity only " + q.toString(), context, duration: Toast.LENGTH_LONG);
+          }
         }else{
-          Toast.show("Unable to save data", context);
+          Toast.show("No Quantity", context, duration: Toast.LENGTH_LONG);
         }
       }
     } else {
-      Toast.show("Product invalid", context);
+      Toast.show("Product invalid or already used", context, duration: Toast.LENGTH_LONG);
     }
   }
 
@@ -118,13 +132,25 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
       await db.rawQuery("UPDATE transferdet SET transferdet_transfer_id = ? "
           "WHERE transferdet_transfer_id IS NULL", [transfer_id]
       );
+
+      final data = await db.rawQuery("SELECT * FROM transferdet WHERE transferdet_transfer_id = ? ", [transfer_id]);
+      if(data.length > 0){
+        for(int i=0; i<data.length; i++) {
+          TransferdetModel datum = TransferdetModel.fromDb(data[i]);
+          await db.rawQuery("UPDATE area_product_qty SET quantity = quantity - ? "
+              "WHERE warehouse_id = 1 AND product_id = ? ", [datum.transferdet_qty, datum.transferdet_product_id]);
+        }
+      }
+
       Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         ),
@@ -213,6 +239,34 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
             ),
           ],
         )
+      )
     );
+  }
+
+  Future<bool> _onWillPop() {
+    return showDialog(
+      context: context,
+      builder: (context) =>
+      new AlertDialog(
+        title: new Text('Confirm Exit?',
+            style: new TextStyle(color: Colors.black, fontSize: 20.0)),
+        content: new Text('Are you sure to stop transfer ?'),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () async {
+              Database db = await widget.databaseHelper.database;
+                await db.rawQuery("DELETE FROM transferdet WHERE transferdet_transfer_id IS NULL"
+              );
+              Navigator.popUntil(context,  ModalRoute.withName('/production_transfer'));
+            },
+            child: new Text('Yes', style: new TextStyle(fontSize: 18.0)),
+          ),
+          new FlatButton(
+            onPressed: () =>Navigator.pop(context),
+            child: new  Text('No', style: new TextStyle(fontSize: 18.0)),
+          )
+        ],
+      ),
+    ) ?? false;
   }
 }

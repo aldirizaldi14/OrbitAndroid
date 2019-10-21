@@ -15,9 +15,10 @@ class ProductionOutputState extends State<ProductionOutputClass> {
   List productionData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT production_id, product_code, production_time, production_qty "
+    final data = await db.rawQuery("SELECT production_id, production_code, product_code, production_time, production_qty, line_name, production_batch "
         "FROM production "
         "JOIN product ON product.product_id = production.production_product_id "
+        "JOIN line ON line.line_id = production.production_line_id "
         "ORDER BY production_time DESC"
     );
     print(data);
@@ -62,6 +63,7 @@ class ProductionOutputState extends State<ProductionOutputClass> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(p['product_code'], style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                        Text(p['line_name'] + ' - ' + p['production_batch'], style: TextStyle( fontSize: 12),),
                         Text(p['production_time'], style: TextStyle( fontSize: 12),),
                       ],
                     ),

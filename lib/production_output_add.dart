@@ -4,6 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:random_string/random_string.dart';
+import 'package:unified_process/model/area_product_qty_model.dart';
 import 'helper/database_helper.dart';
 import 'model/production_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -55,23 +56,37 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
         productController.text = barcodeValue;
       });
     } else {
-      Toast.show("Product invalid", context);
+      Toast.show("Invalid Product", context);
     }
   }
 
   void saveData() async{
     final formData = formKey.currentState.value;
+    final dTime = new DateTime.now();
+    Database db = await widget.databaseHelper.database;
+
     ProductionModel production = ProductionModel.instance;
     production.production_product_id = product_id;
     production.production_batch = formData['batch'];
     production.production_line_id = formData['line_id'];
     production.production_shift = formData['shift'];
     production.production_qty = int.parse(formData['quantity']);
-    production.production_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(new DateTime.now());
-    production.production_code = randomAlpha(3) + new DateFormat("ddHHmm").format(new DateTime.now());
+    production.production_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(dTime);
+    production.production_code = randomAlpha(3) + new DateFormat("ddHHmm").format(dTime);
     production.production_sync = 0;
     int production_id = await widget.databaseHelper.insert(production.tableName, production.toMap());
     if(production_id > 0){
+      // check quantity in production store exist or not
+      final check = await db.rawQuery("SELECT * FROM area_product_qty "
+          "WHERE warehouse_id = 1 AND product_id = ? ", [product_id]);
+      if(check.length == 0){
+        await db.rawInsert('INSERT INTO area_product_qty(warehouse_id, area_id, product_id, quantity) VALUES(1, 0, ?, ?)', [product_id, int.parse(formData['quantity'])]);
+      }else{
+        AreaProductQtyModel d = AreaProductQtyModel.fromDb(check[0]);
+        int qty = d.quantity + int.parse(formData['quantity']);
+        await db.rawQuery("UPDATE area_product_qty SET quantity = ? "
+            "WHERE warehouse_id = 1 AND product_id = ? ", [qty, product_id]);
+      }
       Navigator.pop(context);
     }
   }

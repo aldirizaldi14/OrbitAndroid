@@ -18,8 +18,8 @@ import 'package:unified_process/model/transferdet_model.dart';
 import 'package:unified_process/model/warehouse_model.dart';
 import 'package:unified_process/helper/database_helper.dart';
 
-//String api_url = "http://192.168.1.201/unified_process/public/api/";
-String api_url = "http://137.40.52.103/up/public/api/";
+String api_url = "http://192.168.1.9/api/";
+//String api_url = "http://137.40.52.103/up/public/api/";
 
 Future<dynamic> apiLogin(String user, String passw) async {
   try{
@@ -191,8 +191,8 @@ Future<bool> apiSyncProduction(String token, String last_update, DatabaseHelper 
   Database db = await dbHelper.database;
   print('production');
   try {
-    final data = await db.rawQuery(
-        "SELECT * FROM production WHERE production_sync = 0");
+    await db.rawQuery("DELETE FROM production WHERE production_sync = 1 AND date(production_time) <= date('now','-2 day')");
+    final data = await db.rawQuery("SELECT * FROM production WHERE production_sync = 0");
     if (data.length > 0) {
       for (int i = 0; i < data.length; i++) {
         ProductionModel datum = ProductionModel.fromDb(data[i]);
@@ -253,6 +253,7 @@ Future<bool> apiSyncTransfer(String token, String last_update, DatabaseHelper db
   Database db = await dbHelper.database;
   print('transfer');
   try {
+    await db.rawQuery("DELETE FROM transfer WHERE transfer_sync = 1 AND date(transfer_time) <= date('now','-2 day')");
     final data = await db.rawQuery("SELECT * FROM transfer WHERE transfer_sync = 0");
     if(data.length > 0){
       for(int i=0; i<data.length; i++){
@@ -313,6 +314,7 @@ Future<bool> apiSyncTransferdet(String token, String last_update, DatabaseHelper
   Database db = await dbHelper.database;
   print('transferdet');
   try {
+    await db.rawQuery("DELETE FROM transferdet WHERE date(transferdet_created_at) <= date('now','-2 day')");
     final response = await http.post(
         api_url + "transfer/detail",
         headers: {
@@ -351,8 +353,8 @@ Future<bool> apiSyncTransferdet(String token, String last_update, DatabaseHelper
 Future<bool> apiSyncReceipt(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
   print('receipt');
-
-    await db.rawQuery("DELETE FROM receipt where receipt_status IS NULL");
+  try{
+    await db.rawQuery("DELETE FROM receipt WHERE receipt_sync = 1 AND date(receipt_time) <= date('now','-2 day')");
     final data = await db.rawQuery("SELECT * FROM receipt WHERE receipt_sync = 0 OR receipt_sync IS NULL");
     if(data.length > 0){
       for(int i=0; i<data.length; i++){
@@ -403,13 +405,17 @@ Future<bool> apiSyncReceipt(String token, String last_update, DatabaseHelper dbH
     } else {
       throw(response.body);
     }
-
+  }catch(e){
+    print(e);
+    return false;
+  }
 }
 
 Future<bool> apiSyncReceiptdet(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
   print('receiptdet');
-
+  try{
+    await db.rawQuery("DELETE FROM receiptdet WHERE date(receiptdet_created_at) <= date('now','-2 day')");
     final response = await http.post(
         api_url + "receipt/detail",
         headers: {
@@ -439,13 +445,17 @@ Future<bool> apiSyncReceiptdet(String token, String last_update, DatabaseHelper 
     } else {
       throw(response.body);
     }
-
+  }catch(e){
+    print(e);
+    return false;
+  }
 }
 
 Future<bool> apiSyncAllocation(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
   print('allocation');
   try {
+    await db.rawQuery("DELETE FROM allocation WHERE allocation_sync = 1 AND date(allocation_time) <= date('now','-2 day')");
     final data = await db.rawQuery("SELECT * FROM allocation WHERE allocation_sync = 0");
     if(data.length > 0){
       for(int i=0; i<data.length; i++){
@@ -506,6 +516,7 @@ Future<bool> apiSyncAllocationdet(String token, String last_update, DatabaseHelp
   Database db = await dbHelper.database;
   print('allocationdet');
   try {
+    await db.rawQuery("DELETE FROM allocationdet WHERE date(allocationdet_created_at) <= date('now','-2 day')");
     final response = await http.post(
         api_url + "allocation/detail",
         headers: {
@@ -545,6 +556,7 @@ Future<bool> apiSyncDelivery(String token, String last_update, DatabaseHelper db
   Database db = await dbHelper.database;
   print('delivery');
   try {
+    await db.rawQuery("DELETE FROM delivery WHERE delivery_sync = 1 AND date(delivery_time) <= date('now','-2 day')");
     final data = await db.rawQuery("SELECT * FROM delivery WHERE delivery_sync = 0");
     print(data);
     if(data.length > 0){
@@ -607,6 +619,7 @@ Future<bool> apiSyncDeliverydet(String token, String last_update, DatabaseHelper
   Database db = await dbHelper.database;
   print('deliverydet');
   try {
+    await db.rawQuery("DELETE FROM deliverydet WHERE date(deliverydet_created_at) <= date('now','-2 day')");
     final response = await http.post(
         api_url + "delivery/detail",
         headers: {

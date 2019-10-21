@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unified_process/model/allocation_model.dart';
 import 'package:unified_process/model/allocationdet_model.dart';
 import 'package:unified_process/model/area_model.dart';
-import 'package:unified_process/model/transfer_model.dart';
-import 'package:unified_process/model/transferdet_model.dart';
+import 'package:unified_process/model/area_product_qty_model.dart';
 import 'helper/database_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -40,7 +38,9 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
           actions: <Widget>[
@@ -123,14 +123,44 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
             ),
           ],
         )
+      )
     );
+  }
+
+  Future<bool> _onWillPop() {
+    return showDialog(
+      context: context,
+      builder: (context) =>
+      new AlertDialog(
+        title: new Text('Confirm Exit?',
+            style: new TextStyle(color: Colors.black, fontSize: 20.0)),
+        content: new Text('Are you sure to stop allocation ?'),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () async {
+              Database db = await widget.databaseHelper.database;
+                await db.rawQuery("DELETE FROM allocationdet WHERE allocationdet_allocation_id IS NULL OR allocationdet_allocation_id = 0"
+              );
+              Navigator.popUntil(context,  ModalRoute.withName('/'));
+            },
+            child: new Text('Yes', style: new TextStyle(fontSize: 18.0)),
+          ),
+          new FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: new  Text('No', style: new TextStyle(fontSize: 18.0)),
+          )
+        ],
+      ),
+    ) ?? false;
   }
 
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
+    //widget.databaseHelper.dummyData(db);
     final data = await db.rawQuery("SELECT allocationdet_id, allocationdet_area_id, allocationdet_qty, area_name "
         "FROM allocationdet "
         "JOIN area ON area.area_id = allocationdet.allocationdet_area_id "
+        "WHERE allocationdet_allocation_id = 0 "
     );
     print(data);
     setState(() {
@@ -144,7 +174,6 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
         "FROM area "
         "WHERE area_deleted_at IS NULL "
     );
-    print(data);
     for(int i=0; i < data.length; i++){
       setState(() {
         listArea.add(AreaModel.fromDb(data[i]));
@@ -167,7 +196,7 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
     final data = await db.rawQuery("SELECT * "
         "FROM area_product_qty "
         "JOIN product ON product.product_id = area_product_qty.product_id "
-        "WHERE product_code = ? AND area_id = 0", [barcodeScanRes]
+        "WHERE product_code = ? AND warehouse_id = 0", [barcodeScanRes]
     );
     if(data.length > 0){
       setState(() {
@@ -193,6 +222,35 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
       await db.rawQuery("UPDATE allocationdet SET allocationdet_allocation_id = ? "
           "WHERE allocationdet_allocation_id = 0", [allocationId]
       );
+
+      final data = await db.rawQuery("SELECT * FROM allocationdet WHERE allocationdet_allocation_id = ? ", [allocationId]);
+      if(data.length > 0){
+        for(int i=0; i<data.length; i++) {
+          AllocationdetModel datum = AllocationdetModel.fromDb(data[i]);
+          await db.rawQuery("UPDATE area_product_qty SET quantity = quantity - ? "
+              "WHERE warehouse_id = 0 AND product_id = ? ", [datum.allocationdet_qty, productId]);
+
+          final check = await db.rawQuery("SELECT quantity "
+              "FROM area_product_qty "
+              "WHERE area_id = ? AND product_id = ?", [datum.allocationdet_area_id, productId]
+          );
+          if(check.length > 0){
+            await db.rawQuery("UPDATE area_product_qty SET quantity = quantity + ? "
+                "WHERE area_id = ? AND product_id = ? ", [datum.allocationdet_qty, datum.allocationdet_area_id, productId]);
+          }else{
+            final area = await db.rawQuery("SELECT * FROM area "
+                "WHERE area_id = ? ", [datum.allocationdet_area_id]
+            );
+            AreaProductQtyModel areaProductQtyModel = AreaProductQtyModel.instance;
+            areaProductQtyModel.warehouse_id = area[0]['area_warehouse_id'];
+            areaProductQtyModel.area_id = datum.allocationdet_area_id;
+            areaProductQtyModel.product_id = productId;
+            areaProductQtyModel.quantity = datum.allocationdet_qty;
+            await widget.databaseHelper.insert(areaProductQtyModel.tableName, areaProductQtyModel.toMap());
+          }
+        }
+      }
+
       Navigator.pop(context);
     }
   }
@@ -219,8 +277,6 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
 
   void inputDetail() async{
     TextEditingController qtyController = TextEditingController();
-    print('area');
-    print(listArea);
     AreaModel dropdownValue = listArea[0];
     await showDialog<void>(
       context: context,
@@ -250,10 +306,14 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
               child: Text('Save'),
               onPressed: () {
                 Navigator.of(context).pop();
-                saveDetail(dialogAreaKey.currentState.dropdownValue.area_id, int.parse(qtyController.text));
-                setState(() {
-                  unallocatedQty -= int.parse(qtyController.text);
-                });
+                if(unallocatedQty < int.parse(qtyController.text)){
+                  Toast.show('Quantity should be less than '+ unallocatedQty.toString(), context);
+                }else{
+                  saveDetail(dialogAreaKey.currentState.dropdownValue.area_id, int.parse(qtyController.text));
+                  setState(() {
+                    unallocatedQty -= int.parse(qtyController.text);
+                  });
+                }
               },
             ),
           ],

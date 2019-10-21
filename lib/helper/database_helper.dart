@@ -282,4 +282,26 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
+
+  Future dummyData(Database db) async {
+    await db.execute(
+        "DELETE FROM allocation"
+    );await db.execute(
+        "DELETE FROM allocationdet"
+    );
+    /*await db.execute(
+        "INSERT INTO production (production_code, production_time, production_product_id, production_line_id, production_shift, production_batch, production_qty, production_sync) "
+            "VALUES ('Asd123456', '2019-10-18 00:00:00', 1, 1, '1', 'Lot 1', 150, 0)"
+    );
+    await db.execute(
+        "INSERT INTO production (production_code, production_time, production_product_id, production_line_id, production_shift, production_batch, production_qty, production_sync) "
+            "VALUES ('Asd123455', '2019-10-20 00:00:00', 1, 1, '1', 'Lot 1', 150, 1)"
+    );
+    await db.execute(
+        "INSERT INTO production (production_code, production_time, production_product_id, production_line_id, production_shift, production_batch, production_qty, production_sync) "
+            "VALUES ('Asd123454', '2019-10-18 00:00:00', 1, 1, '1', 'Lot 1', 150, 1)"
+    );
+
+     */
+  }
 }
