@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:unified_process/delivery_add.dart';
 import 'package:unified_process/production_transfer_add.dart';
 import 'package:unified_process/production_transfer_detail.dart';
+import 'package:unified_process/tagcount.dart';
 import 'package:unified_process/warehouse_receipt_add.dart';
 import 'login.dart';
 import 'menu.dart';
@@ -44,6 +45,7 @@ void main(){
         '/setting': (context) => Setting(),
         '/about': (context) => About(),
         '/barcode': (context) => Barcode(),
+        '/tagcount': (context) => TagCount(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,

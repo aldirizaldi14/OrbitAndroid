@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:unified_process/model/area_model.dart';
 import 'package:unified_process/model/delivery_model.dart';
 import 'package:unified_process/model/deliverydet_model.dart';
 import 'helper/database_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:toast/toast.dart';
+
+final dialogAreaKey = new GlobalKey<DialogAreaState>();
 
 class DeliveryAdd extends StatefulWidget {
   DeliveryAdd({ Key key }) : super (key: key);
@@ -23,6 +26,7 @@ class DeliveryAddState extends State<DeliveryAdd> {
   TextEditingController expeditionController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
   TextEditingController cityController = TextEditingController();
+  List<AreaModel> listArea = [];
 
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
@@ -40,11 +44,13 @@ class DeliveryAddState extends State<DeliveryAdd> {
   @override
   initState() {
     super.initState();
-    fetchData();
+    fetchArea();
   }
 
   Future<void> openScanner() async {
     TextEditingController qtyController = TextEditingController();
+    AreaModel dropdownValue = listArea[0];
+
     String barcodeScanRes;
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true, ScanMode.DEFAULT);
@@ -65,15 +71,14 @@ class DeliveryAddState extends State<DeliveryAdd> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(data[0]['product_description'].toString()),
-            content: new Row(
+            content: new Column(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                new Expanded(
-                    child: new TextField(
-                      autofocus: true,
-                      decoration: new InputDecoration(labelText: 'Input quantity'),
-                      controller: qtyController,
-                      keyboardType: TextInputType.numberWithOptions(),
-                    )
+                DialogArea(listArea: listArea, key: dialogAreaKey,),
+                TextField(
+                  keyboardType: TextInputType.numberWithOptions(),
+                  decoration: new InputDecoration(labelText: 'Quantity'),
+                  controller: qtyController,
                 )
               ],
             ),
@@ -98,15 +103,26 @@ class DeliveryAddState extends State<DeliveryAdd> {
       );
 
       if(qtyController.text != ''){
-        DeliverydetModel deliverydetModel = DeliverydetModel.instance;
-        deliverydetModel.deliverydet_product_id = data[0]['product_id'];
-        deliverydetModel.deliverydet_qty = int.parse(qtyController.text);
-        int deliverydetId = await widget.databaseHelper.insert(deliverydetModel.tableName, deliverydetModel.toMap());
-        print(deliverydetId);
-        if(deliverydetId > 0){
-          fetchData();
-        }else{
-          Toast.show("Unable to save data", context);
+        final check = await db.rawQuery("SELECT quantity "
+            "FROM area_product_qty "
+            "WHERE area_id = ? AND product_id = ?", [dialogAreaKey.currentState.dropdownValue.area_id, data[0]['product_id']]
+        );
+        if(check.length > 0){
+          int q = check[0]['quantity'] is int ? check[0]['quantity'] : int.parse(check[0]['quantity']);
+          if(q >= int.parse(qtyController.text)){
+            DeliverydetModel deliverydetModel = DeliverydetModel.instance;
+            deliverydetModel.deliverydet_product_id = data[0]['product_id'];
+            deliverydetModel.deliverydet_area_id = dialogAreaKey.currentState.dropdownValue.area_id;
+            deliverydetModel.deliverydet_qty = int.parse(qtyController.text);
+            int deliverydetId = await widget.databaseHelper.insert(deliverydetModel.tableName, deliverydetModel.toMap());
+            if(deliverydetId > 0){
+              fetchData();
+            }else{
+              Toast.show("Unable to save data", context);
+            }
+          }else{
+            Toast.show("Quantity only " + q.toString(), context, duration: Toast.LENGTH_LONG);
+          }
         }
       }
     } else {
@@ -128,13 +144,23 @@ class DeliveryAddState extends State<DeliveryAdd> {
       await db.rawQuery("UPDATE deliverydet SET deliverydet_delivery_id = ? "
           "WHERE deliverydet_delivery_id IS NULL", [deliveryId]
       );
+      final data = await db.rawQuery("SELECT * FROM deliverydet WHERE deliverydet_delivery_id = ? ", [deliveryId]);
+      if(data.length > 0){
+        for(int i=0; i<data.length; i++) {
+          DeliverydetModel datum = DeliverydetModel.fromDb(data[i]);
+          await db.rawQuery("UPDATE area_product_qty SET quantity = quantity - ? "
+              "WHERE area_id = ? AND product_id = ? ", [datum.deliverydet_qty, datum.deliverydet_area_id, datum.deliverydet_product_id]);
+        }
+      }
       Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         ),
@@ -239,6 +265,97 @@ class DeliveryAddState extends State<DeliveryAdd> {
             ),
           ],
         )
+      )
+    );
+  }
+
+  Future<bool> _onWillPop() {
+    return showDialog(
+      context: context,
+      builder: (context) =>
+      new AlertDialog(
+        title: new Text('Confirm Exit?',
+            style: new TextStyle(color: Colors.black, fontSize: 20.0)),
+        content: new Text('Are you sure to stop delivery ?'),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () async {
+              Database db = await widget.databaseHelper.database;
+              await db.rawQuery("DELETE FROM deliverydet WHERE deliverydet_delivery_id IS NULL OR deliverydet_delivery_id = 0"
+              );
+              Navigator.popUntil(context,  ModalRoute.withName('/delivery'));
+            },
+            child: new Text('Yes', style: new TextStyle(fontSize: 18.0)),
+          ),
+          new FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: new  Text('No', style: new TextStyle(fontSize: 18.0)),
+          )
+        ],
+      ),
+    ) ?? false;
+  }
+
+  void fetchArea() async {
+    Database db = await widget.databaseHelper.database;
+    final data = await db.rawQuery("SELECT * "
+        "FROM area "
+        "WHERE area_deleted_at IS NULL "
+    );
+    for(int i=0; i < data.length; i++){
+      setState(() {
+        listArea.add(AreaModel.fromDb(data[i]));
+      });
+    }
+  }
+}
+
+class DialogArea extends StatefulWidget {
+  List<AreaModel> listArea;
+  DialogArea({ Key key, this.listArea }) : super (key: key);
+
+  @override
+  DialogAreaState createState() => DialogAreaState();
+}
+
+class DialogAreaState extends State<DialogArea> {
+  AreaModel dropdownValue;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    dropdownValue = widget.listArea[0];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return DropdownButton<AreaModel>(
+        isExpanded: true,
+        icon: Icon(Icons.arrow_downward),
+        iconSize: 24,
+        elevation: 16,
+        value: dropdownValue,
+        style: TextStyle(
+            color: Colors.deepPurple
+        ),
+        underline: Container(
+          height: 2,
+          color: Colors.deepPurpleAccent,
+        ),
+        onChanged: (AreaModel newValue) {
+          setState(() {
+            dropdownValue = newValue;
+          });
+        },
+        items: widget.listArea.length == 0 ? [] : widget.listArea.map((AreaModel item) {
+          return DropdownMenuItem<AreaModel>(
+              value: item,
+              child: Text(item.area_name.toString())
+          );
+        }
+        ).toList()
     );
   }
 }

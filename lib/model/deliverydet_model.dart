@@ -8,6 +8,7 @@ class DeliverydetModel {
   int deliverydet_delivery_id;
   int deliverydet_product_id;
   int deliverydet_qty;
+  int deliverydet_area_id;
   int deliverydet_server_id;
   String deliverydet_created_at;
   String deliverydet_created_by;
@@ -22,6 +23,7 @@ class DeliverydetModel {
       'deliverydet_delivery_id': deliverydet_delivery_id,
       'deliverydet_product_id': deliverydet_product_id,
       'deliverydet_qty': deliverydet_qty,
+      'deliverydet_area_id': deliverydet_area_id,
       'deliverydet_server_id': deliverydet_server_id,
       'deliverydet_created_at': deliverydet_created_at,
       'deliverydet_created_by': deliverydet_created_by,
@@ -37,6 +39,7 @@ class DeliverydetModel {
         deliverydet_delivery_id = map['deliverydet_delivery_id'] is int ? map['deliverydet_delivery_id'] : (map['deliverydet_delivery_id'] == null ? 0 : int.parse(map['deliverydet_delivery_id'])),
         deliverydet_product_id = map['deliverydet_product_id'] is int ? map['deliverydet_product_id'] : (map['deliverydet_product_id'] == null ? 0 : int.parse(map['deliverydet_product_id'])),
         deliverydet_qty = map['deliverydet_qty'] is int ? map['deliverydet_qty'] : (map['deliverydet_qty'] == null ? 0 : int.parse(map['deliverydet_qty'])),
+        deliverydet_area_id = map['deliverydet_area_id'] is int ? map['deliverydet_area_id'] : (map['deliverydet_area_id'] == null ? 0 : int.parse(map['deliverydet_area_id'])),
         deliverydet_server_id = map['deliverydet_server_id'],
         deliverydet_created_at = map['deliverydet_created_at'],
         deliverydet_created_by = map['deliverydet_created_by'],

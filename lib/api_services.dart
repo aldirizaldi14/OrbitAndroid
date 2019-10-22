@@ -35,6 +35,27 @@ Future<dynamic> apiLogin(String user, String passw) async {
   }
 }
 
+Future<bool> apiChangePassword(String token, String pass) async {
+  try{
+    final response = await http.post(
+        api_url + "changepass",
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer '+ token
+        },
+        body: {'password': pass }
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw(response.body);
+    }
+  }catch(e){
+    print(e);
+    return false;
+  }
+}
+
 Future<bool> apiSyncWarehouse(String token, String last_update, DatabaseHelper dbHelper) async {
   Database db = await dbHelper.database;
   print('warehouse');

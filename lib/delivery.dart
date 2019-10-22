@@ -16,6 +16,7 @@ class DeliveryState extends State<Delivery> {
   List listData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
+    //widget.databaseHelper.dummyData(db);
     final data = await db.rawQuery("SELECT delivery_id, delivery_code, delivery_time, delivery_destination "
         "FROM delivery "
         "ORDER BY delivery_time DESC"
@@ -67,7 +68,7 @@ class DeliveryState extends State<Delivery> {
                             Text(p['delivery_time'].toString(), style: TextStyle( fontSize: 12),),
                           ],
                         ),
-                        Icon(Icons.keyboard_arrow_right)
+                        //Icon(Icons.keyboard_arrow_right)
                       ],
                     )
                 ),

@@ -184,8 +184,8 @@ class MenuState extends State<MenuClass> {
                 },
               ),
               ListTile(
-                title: Text('Setting'),
-                leading: Icon(Icons.settings),
+                title: Text('Change Password'),
+                leading: Icon(Icons.lock),
                 onTap: () {
                   Navigator.pushNamed(context, '/setting');
                 },
@@ -252,8 +252,10 @@ class MenuState extends State<MenuClass> {
           menuItems(context, 'assets/images/allocation.png', "Allocation", '/warehouse_allocation'),
           menuItems(context, 'assets/images/delivery.png', "Delivery", '/delivery'),
           menuItems(context, 'assets/images/search.png', "Search Product", '/product_search'),
+          menuItems(context, 'assets/images/tag.png', "Tag Count", '/tagcount'),
         ],
         staggeredTiles: [
+          StaggeredTile.extent(1, 125),
           StaggeredTile.extent(1, 125),
           StaggeredTile.extent(1, 125),
           StaggeredTile.extent(1, 125),

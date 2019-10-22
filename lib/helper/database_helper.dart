@@ -234,6 +234,7 @@ class DatabaseHelper {
             "deliverydet_delivery_id INTEGER,"
             "deliverydet_product_id INTEGER,"
             "deliverydet_qty INTEGER,"
+            "deliverydet_area_id INTEGER,"
             "deliverydet_server_id INTEGER,"
             "deliverydet_created_at TEXT,"
             "deliverydet_created_by TEXT,"
@@ -285,9 +286,9 @@ class DatabaseHelper {
 
   Future dummyData(Database db) async {
     await db.execute(
-        "DELETE FROM allocation"
+        "DELETE FROM delivery"
     );await db.execute(
-        "DELETE FROM allocationdet"
+        "DELETE FROM deliverydet"
     );
     /*await db.execute(
         "INSERT INTO production (production_code, production_time, production_product_id, production_line_id, production_shift, production_batch, production_qty, production_sync) "
