@@ -47,7 +47,7 @@ class LoginState extends State<LoginClass> {
             ),
           ),
           Container(
-            padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
             width: double.infinity,
             child: (
               FlatButton(
@@ -91,7 +91,13 @@ class LoginState extends State<LoginClass> {
             ),
           ),
           Container(
-            padding: EdgeInsets.fromLTRB(10, 30, 10, 10),
+              padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+              child: Center(
+                child: Text('Version 1.0.0+1', style: TextStyle(fontSize: 11),)
+              )
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: Center(
               child: Image.asset('assets/images/flag-id.png'),
             )
