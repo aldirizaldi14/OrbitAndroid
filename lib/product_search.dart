@@ -33,7 +33,7 @@ class ProductSearchState extends State<ProductSearch> {
     if (!mounted) return;
 
     Database db = await widget.databaseHelper.database;
-    final data = await db.query('product', where: 'product_code = ?', whereArgs: [barcodeScanRes]);
+    final data = await db.query('product', where: 'product_code = ? OR product_code_alt = ?', whereArgs: [barcodeScanRes, barcodeScanRes]);
     if(data.length > 0){
       ProductModel productModel = ProductModel.fromDb(data.first);
       setState(() {
@@ -55,7 +55,7 @@ class ProductSearchState extends State<ProductSearch> {
         "LEFT JOIN product ON product.product_id = area_product_qty.product_id "
         "LEFT JOIN area ON area.area_id = area_product_qty.area_id "
         "LEFT JOIN warehouse ON warehouse.warehouse_id = area_product_qty.warehouse_id "
-        "WHERE product_code = ? AND quantity > 0", [product_code]
+        "WHERE (product_code = ? OR product_code_alt = ?) AND quantity > 0", [product_code,product_code]
     );
     print(allRows);
 

@@ -196,7 +196,7 @@ class WarehouseAllocationState extends State<WarehouseAllocationClass> {
     final data = await db.rawQuery("SELECT * "
         "FROM area_product_qty "
         "JOIN product ON product.product_id = area_product_qty.product_id "
-        "WHERE product_code = ? AND warehouse_id = 0", [barcodeScanRes]
+        "WHERE (product_code = ? OR product_code_alt = ?) AND warehouse_id = 0", [barcodeScanRes,barcodeScanRes]
     );
     if(data.length > 0){
       setState(() {

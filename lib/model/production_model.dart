@@ -11,6 +11,7 @@ class ProductionModel {
   String production_shift;
   String production_batch;
   int production_qty;
+  String production_remark;
   int production_user_id;
   int production_server_id;
   String production_created_at;
@@ -30,6 +31,7 @@ class ProductionModel {
       'production_shift': production_shift,
       'production_batch': production_batch,
       'production_qty': production_qty,
+      'production_remark': production_remark,
       'production_user_id': production_user_id,
       'production_server_id': production_server_id,
       'production_created_at': production_created_at,
@@ -51,6 +53,7 @@ class ProductionModel {
         production_batch = map['production_batch'],
         production_qty = map['production_qty'] is int ? map['production_qty'] : int.parse(map['production_qty']),
         production_user_id = map['production_user_id'] is int ? map['production_user_id'] : (map['production_user_id'] == null ? 0 : int.parse(map['production_user_id'])),
+        production_remark = map['production_remark'],
         production_server_id = map['production_server_id'],
         production_created_at = map['production_created_at'],
         production_created_by = map['production_created_by'],

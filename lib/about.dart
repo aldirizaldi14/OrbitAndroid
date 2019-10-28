@@ -16,7 +16,7 @@ class About extends StatelessWidget {
               children: <Widget>[
                 Image.asset('assets/images/logo.png', width: 150, height: 150,),
                 Center(child: Text("UNIFIED PROCESS", style: TextStyle( fontSize: 25, fontWeight: FontWeight.bold),),),
-                Center(child: Text("Version : 1.0.0+1"),),
+                Center(child: Text("Version : 1.0.1+1"),),
                 Container(height: 20,),
                 Center(child: Text("Aplication to record production and warehouse process in PT. Panasonic Gobel Life Solutions Manufacturing Indonesia.", textAlign: TextAlign.center,),),
                 Divider(),

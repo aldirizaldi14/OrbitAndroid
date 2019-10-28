@@ -47,12 +47,12 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery("SELECT product_id, product_code "
         "FROM product "
-        "WHERE product_code = ? AND product_deleted_at IS NULL", [barcodeScanRes]
+        "WHERE (product_code = ? OR product_code_alt = ?) AND product_deleted_at IS NULL", [barcodeScanRes,barcodeScanRes]
     );
     if(data.length > 0){
       setState(() {
         product_id = data[0]['product_id'];
-        barcodeValue = barcodeScanRes;
+        barcodeValue = data[0]['product_code'];
         productController.text = barcodeValue;
       });
     } else {
@@ -70,6 +70,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     production.production_batch = formData['batch'];
     production.production_line_id = formData['line_id'];
     production.production_shift = formData['shift'];
+    production.production_remark = formData['remark'];
     production.production_qty = int.parse(formData['quantity']);
     production.production_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(dTime);
     production.production_code = randomAlpha(3) + new DateFormat("ddHHmm").format(dTime);
@@ -187,6 +188,13 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                           validators: [
                             FormBuilderValidators.required(),
                             FormBuilderValidators.numeric()
+                          ],
+                        ),
+                        FormBuilderTextField(
+                          attribute: "remark",
+                          decoration: InputDecoration(labelText: "Remark"),
+                          validators: [
+                            FormBuilderValidators.required()
                           ],
                         ),
                       ],

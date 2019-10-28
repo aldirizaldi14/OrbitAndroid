@@ -63,7 +63,7 @@ class DeliveryAddState extends State<DeliveryAdd> {
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery("SELECT product_id, product_code, product_description "
         "FROM product "
-        "WHERE product_code = ? AND product_deleted_at IS NULL", [barcodeScanRes]
+        "WHERE (product_code = ? OR product_code_alt = ?) AND product_deleted_at IS NULL", [barcodeScanRes,barcodeScanRes]
     );
     if(data.length > 0){
       await showDialog<void>(
@@ -123,6 +123,8 @@ class DeliveryAddState extends State<DeliveryAdd> {
           }else{
             Toast.show("Quantity only " + q.toString(), context, duration: Toast.LENGTH_LONG);
           }
+        }else{
+          Toast.show("No quantity in this area ", context, duration: Toast.LENGTH_LONG);
         }
       }
     } else {

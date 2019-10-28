@@ -32,6 +32,7 @@ class DatabaseHelper {
     await db.execute(
       "CREATE TABLE product("
         "product_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "product_code_alt TEXT,"
         "product_code TEXT,"
         "product_description TEXT,"
         "product_server_id INTEGER,"
@@ -93,6 +94,7 @@ class DatabaseHelper {
         "production_shift TEXT,"
         "production_batch TEXT,"
         "production_qty INTEGER,"
+        "production_remark TEXT,"
         "production_user_id INTEGER,"
         "production_server_id INTEGER,"
         "production_created_at TEXT,"

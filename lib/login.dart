@@ -67,23 +67,27 @@ class LoginState extends State<LoginClass> {
                     setState(() {
                       process = false;
                     });
-                    if(response != ''){
-                      Map<String, dynamic> res = json.decode(response);
-                      if(res['success']){
-                        Map<String, dynamic> user = res['message'];
-                        SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
-                        _sharedPreferences.setInt('USER_ID', user['user_id'] is int ? user['user_id'] : int.parse(user['user_id']));
-                        _sharedPreferences.setInt('USER_GROUP_ID', user['user_group_id'] is int ? user['user_group_id'] : int.parse(user['user_group_id']));
-                        _sharedPreferences.setString('USER_USERNAME', user['user_username']);
-                        _sharedPreferences.setString('USER_FULLNAME', user['user_fullname']);
-                        _sharedPreferences.setString('USER_TOKEN', user['api_token']);
-                        _sharedPreferences.setString('LAST_UPDATE', '');
-                        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-                      }else{
-                        Toast.show(res['message'], context);
+                    if(response != null){
+                      if (response.statusCode == 200) {
+                        Map<String, dynamic> res = json.decode(response.body);
+                        if(res['success']){
+                          Map<String, dynamic> user = res['message'];
+                          SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
+                          _sharedPreferences.setInt('USER_ID', user['user_id'] is int ? user['user_id'] : int.parse(user['user_id']));
+                          _sharedPreferences.setInt('USER_GROUP_ID', user['user_group_id'] is int ? user['user_group_id'] : int.parse(user['user_group_id']));
+                          _sharedPreferences.setString('USER_USERNAME', user['user_username']);
+                          _sharedPreferences.setString('USER_FULLNAME', user['user_fullname']);
+                          _sharedPreferences.setString('USER_TOKEN', user['api_token']);
+                          _sharedPreferences.setString('LAST_UPDATE', '');
+                          Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+                        }else{
+                          Toast.show(res['message'], context);
+                        }
+                      } else {
+                        Toast.show(response.body, context);
                       }
                     } else {
-                      Toast.show('Unable to process request', context);
+                      Toast.show('Cannot connect to ' + api_url, context, duration: Toast.LENGTH_LONG);
                     }
                   }
                 },
@@ -93,7 +97,7 @@ class LoginState extends State<LoginClass> {
           Container(
               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
               child: Center(
-                child: Text('Version 1.0.0+1', style: TextStyle(fontSize: 11),)
+                child: Text('Version 1.0.1+2', style: TextStyle(fontSize: 11),)
               )
           ),
           Container(

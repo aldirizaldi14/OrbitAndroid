@@ -52,8 +52,8 @@ class ProductionTransferAddState extends State<ProductionTransferAddClass> {
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery("SELECT product_id, product_code, product_description "
         "FROM product "
-        "WHERE product_code = ? AND product_deleted_at IS NULL "
-        "AND product_id NOT IN (SELECT transferdet_product_id FROM transferdet WHERE transferdet_transfer_id IS NULL)", [barcodeScanRes]
+        "WHERE (product_code = ? OR product_code_alt = ?) AND product_deleted_at IS NULL "
+        "AND product_id NOT IN (SELECT transferdet_product_id FROM transferdet WHERE transferdet_transfer_id IS NULL)", [barcodeScanRes,barcodeScanRes]
     );
     if(data.length > 0){
       await showDialog<void>(
