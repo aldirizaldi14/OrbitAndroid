@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:unified_process/receipt_detail.dart';
 import 'helper/database_helper.dart';
 
 class WarehouseReceiptClass extends StatefulWidget {
@@ -67,12 +68,16 @@ class WarehouseReceiptState extends State<WarehouseReceiptClass> {
                             Text(p['receipt_time'].toString(), style: TextStyle( fontSize: 12),),
                           ],
                         ),
-                        //Icon(Icons.keyboard_arrow_right)
+                        Icon(Icons.keyboard_arrow_right)
                       ],
                     )
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, '/warehouse_receipt_detail', arguments: [p['receipt_id']]);
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(builder: (BuildContext context) => new ReceiptDetailClass(receiptId: p['receipt_id']))
+                  ).then((value) {
+                    fetchData();
+                  });
                 },
               ),
             );

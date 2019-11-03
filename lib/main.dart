@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:unified_process/delivery_add.dart';
 import 'package:unified_process/production_transfer_add.dart';
 import 'package:unified_process/production_transfer_detail.dart';
+import 'package:unified_process/receipt_detail.dart';
 import 'package:unified_process/tagcount.dart';
 import 'package:unified_process/warehouse_receipt_add.dart';
 import 'login.dart';
@@ -35,6 +36,7 @@ void main(){
         '/production_transfer_detail': (context) => ProductionTransferDetailClass(),
         '/warehouse_receipt': (context) => WarehouseReceiptClass(),
         '/warehouse_receipt_add': (context) => WarehouseReceiptAddClass(),
+        '/warehouse_receipt_detail': (context) => ReceiptDetailClass(),
         '/warehouse_allocation': (context) => WarehouseAllocationClass(),
         '/warehouse_tag_count': (context) => WarehosueTagCount(),
         '/delivery': (context) => Delivery(),

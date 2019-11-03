@@ -1,17 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sqflite/sqflite.dart';
 import 'helper/database_helper.dart';
-import 'model/transfer_model.dart';
 
 class ProductionTransferDetailClass extends StatefulWidget {
   int transferId;
   String transferCode;
+  String transferSent;
 
-  ProductionTransferDetailClass({ Key key, this.transferId, this.transferCode }) : super (key: key);
+  ProductionTransferDetailClass({ Key key, this.transferId, this.transferCode, this.transferSent }) : super (key: key);
   final String title = 'Transfer Detail';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
@@ -21,6 +22,7 @@ class ProductionTransferDetailClass extends StatefulWidget {
 
 class ProductionTransferDetailState extends State<ProductionTransferDetailClass> {
   List listData = [];
+  bool viewList = true;
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery("SELECT transferdet_id AS i, transferdet_qty AS q, product_id AS p, product_code AS c "
@@ -46,6 +48,8 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
   void initState() {
     super.initState();
     fetchData();
+    print(widget.transferSent);
+    print(widget.transferSent == null);
   }
 
   @override
@@ -53,12 +57,48 @@ class ProductionTransferDetailState extends State<ProductionTransferDetailClass>
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          actions: <Widget>[
+            widget.transferSent != null ? Container() :
+            IconButton(
+              icon: Icon((viewList ? FontAwesomeIcons.qrcode : FontAwesomeIcons.table), color: Colors.white,),
+              onPressed: () {
+                setState(() {
+                  viewList = !viewList;
+                });
+              },
+            )
+          ],
         ),
         body: Column(
           children: <Widget>[
             Expanded(
               child: Center(
-                child: QrImage(
+                child: viewList ? ListView.separated(
+                  separatorBuilder: (context, index) {
+                    return Divider(
+                      color: Colors.grey,
+                    );
+                  },
+                  itemBuilder: (context, index) {
+                    final p = listData[index];
+                    return Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(p['c'], style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                              ],
+                            ),
+                            Text(p['q'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 20),)
+                          ],
+                        )
+                    );
+                  },
+                  itemCount: listData.length,
+                ) : QrImage(
                   data: widget.transferCode + '###' + jsonEncode(listData),
                   version: QrVersions.auto,
                   size: double.infinity,

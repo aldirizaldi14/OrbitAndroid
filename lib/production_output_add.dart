@@ -190,12 +190,14 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                             FormBuilderValidators.numeric()
                           ],
                         ),
-                        FormBuilderTextField(
+                        FormBuilderDropdown(
                           attribute: "remark",
                           decoration: InputDecoration(labelText: "Remark"),
-                          validators: [
-                            FormBuilderValidators.required()
-                          ],
+                          items: ['', '99', '97', '93']
+                              .map((item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(item.toString())
+                          )).toList(),
                         ),
                       ],
                     )

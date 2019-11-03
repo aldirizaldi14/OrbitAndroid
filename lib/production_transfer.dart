@@ -68,21 +68,21 @@ class ProductionTransferState extends State<ProductionTransferClass> {
                             Text(p['transfer_time'].toString(), style: TextStyle( fontSize: 12),),
                           ],
                         ),
-                        p['transfer_sent_at'] == null ? Icon(Icons.keyboard_arrow_right) : Container(),
+                        Icon(Icons.keyboard_arrow_right)
                       ],
                     )
                 ),
                 onTap: () {
-                  if(p['transfer_sent_at'] == null) {
-                    Navigator.of(context).push(
-                        new MaterialPageRoute(builder: (BuildContext context) =>
-                        new ProductionTransferDetailClass(
-                            transferId: p['transfer_id'],
-                            transferCode: p['transfer_code']))
-                    ).then((value) {
-                      fetchData();
-                    });
-                  }
+                  print(p['transfer_sent_at']);
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(builder: (BuildContext context) =>
+                      new ProductionTransferDetailClass(
+                          transferId: p['transfer_id'],
+                          transferCode: p['transfer_code'],
+                          transferSent: p['transfer_sent_at']))
+                  ).then((value) {
+                    fetchData();
+                  });
                 },
               ),
             );

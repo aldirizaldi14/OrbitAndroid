@@ -18,7 +18,7 @@ import 'package:unified_process/model/transferdet_model.dart';
 import 'package:unified_process/model/warehouse_model.dart';
 import 'package:unified_process/helper/database_helper.dart';
 
-//String api_url = "http://192.168.1.5/api/";
+//String api_url = "http://192.168.1.11/api/";
 String api_url = "http://137.40.52.103/up/public/api/";
 
 Future<dynamic> apiLogin(String user, String passw) async {
@@ -407,6 +407,7 @@ Future<bool> apiSyncReceipt(String token, String last_update, DatabaseHelper dbH
       for(int i=0; i<res.length; i++){
         ReceiptModel datum = ReceiptModel.fromDb(res[i]);
         final data = await db.rawQuery("SELECT receipt_id FROM receipt WHERE receipt_id = ? ", [datum.receipt_id]);
+        await db.rawQuery("UPDATE transfer SET transfer_sent_at = ? WHERE transfer_id = ? ", [datum.receipt_time, datum.receipt_transfer_id]);
         if(data.length > 0){
           dbHelper.update(datum.tableName, 'receipt_id', datum.toMap());
         }else{
