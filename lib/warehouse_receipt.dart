@@ -16,11 +16,10 @@ class WarehouseReceiptState extends State<WarehouseReceiptClass> {
   List listData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT receipt_id, receipt_code, receipt_time, receipt_status "
-        "FROM receipt "
+    final data = await db.rawQuery("SELECT * "
+        "FROM receipt WHERE receipt_deleted_at IS NULL "
         "ORDER BY receipt_time DESC"
     );
-    print(data);
     setState(() {
       listData = data;
     });

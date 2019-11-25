@@ -55,13 +55,15 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
   }
 
   void saveData() async{
+    Database db = await widget.databaseHelper.database;
+
     ReceiptModel receiptModel = ReceiptModel.instance;
     receiptModel.receipt_transfer_code = transferCode;
     receiptModel.receipt_code = randomAlpha(3) + new DateFormat("ddHHmm").format(new DateTime.now());
     receiptModel.receipt_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(new DateTime.now());
     receiptModel.receipt_sync = 0;
     int receipt_id = await widget.databaseHelper.insert(receiptModel.tableName, receiptModel.toMap());
-    Database db = await widget.databaseHelper.database;
+
     int status = 1;
     if(receipt_id > 0){
       for(int i =0; i < listData.length; i++){
@@ -89,10 +91,8 @@ class WarehouseReceiptAddState extends State<WarehouseReceiptAddClass> {
               "WHERE warehouse_id = 0 AND product_id = ? ", [qty, listData[i]['p']]);
         }
       }
-
-      receiptModel.receipt_id = receipt_id;
-      receiptModel.receipt_status = status;
-      await widget.databaseHelper.update(receiptModel.tableName, 'receipt_id', receiptModel.toMap());
+      await db.rawQuery("UPDATE receipt SET receipt_status = ? "
+          "WHERE receipt_id = ? ", [status, receipt_id]);
       setState(() {
         isProcess = false;
       });
