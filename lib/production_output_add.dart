@@ -21,7 +21,7 @@ class ProductionOutputAddClass extends StatefulWidget {
 }
 
 class ProductionOutputAddState extends State<ProductionOutputAddClass>{
-  TextEditingController productController = TextEditingController(text: 'Scan product');
+  TextEditingController productController = TextEditingController(text: '');
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 
   int product_id = 0;
@@ -127,7 +127,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                                 attribute: "product_id",
                                 controller: productController,
                                 decoration: InputDecoration(labelText: "Product"),
-                                readOnly: true,
+                                readOnly: false,
                                 validators: [
                                   (val){
                                     if(val == 'Scan product'){

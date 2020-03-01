@@ -98,7 +98,7 @@ class MenuState extends State<MenuClass> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('UNIFIED PROCESS'),
+          title: Text('Orbit Application'),
         ),
         body: Column(
           children: <Widget>[

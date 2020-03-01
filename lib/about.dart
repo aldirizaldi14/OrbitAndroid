@@ -15,7 +15,7 @@ class About extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Image.asset('assets/images/logo.png', width: 150, height: 150,),
-                Center(child: Text("UNIFIED PROCESS", style: TextStyle( fontSize: 25, fontWeight: FontWeight.bold),),),
+                Center(child: Text("Orbit Application", style: TextStyle( fontSize: 25, fontWeight: FontWeight.bold),),),
                 Center(child: Text("Version : 1.1.0"),),
                 Container(height: 20,),
                 Center(child: Text("Aplication to record production and warehouse process in PT. Panasonic Gobel Life Solutions Manufacturing Indonesia.", textAlign: TextAlign.center,),),
@@ -51,7 +51,7 @@ class About extends StatelessWidget {
   }
 
   void _sendWa() async {
-    String phone = '6281230822300';
+    String phone = '628127992271';
     String url = 'whatsapp://send?phone=$phone';
     if (await canLaunch(url)) {
       await launch(url);
@@ -61,7 +61,7 @@ class About extends StatelessWidget {
     }
   }
   void _sendMail() async {
-    String url = 'mailto:noval.debby@gmail.com?subject=Unified%20Process';
+    String url = 'mailto:muhammad.syarifuddin@id.panasonic.com?subject=Unified%20Process';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -69,7 +69,7 @@ class About extends StatelessWidget {
     }
   }
   void _sendCall() async {
-    String url = 'tel:081230822300';
+    String url = 'tel:08127992271';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
