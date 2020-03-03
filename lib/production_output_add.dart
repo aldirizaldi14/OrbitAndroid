@@ -12,7 +12,7 @@ import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 
 class ProductionOutputAddClass extends StatefulWidget {
-  ProductionOutputAddClass({ Key key}) : super (key: key);
+  ProductionOutputAddClass({Key key}) : super(key: key);
   final String title = 'Add Production Output';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
 
@@ -20,7 +20,7 @@ class ProductionOutputAddClass extends StatefulWidget {
   ProductionOutputAddState createState() => ProductionOutputAddState();
 }
 
-class ProductionOutputAddState extends State<ProductionOutputAddClass>{
+class ProductionOutputAddState extends State<ProductionOutputAddClass> {
   TextEditingController productController = TextEditingController(text: '');
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 
@@ -37,7 +37,8 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
   Future<void> openScanner() async {
     String barcodeScanRes;
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", true, ScanMode.DEFAULT);
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          "#ff6666", "Cancel", true, ScanMode.DEFAULT);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
@@ -45,11 +46,12 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     if (!mounted) return;
 
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT product_id, product_code "
+    final data = await db.rawQuery(
+        "SELECT product_id, product_code "
         "FROM product "
-        "WHERE (product_code = ? OR product_code_alt = ?) AND product_deleted_at IS NULL", [barcodeScanRes,barcodeScanRes]
-    );
-    if(data.length > 0){
+        "WHERE (product_code = ? OR product_code_alt = ?) AND product_deleted_at IS NULL",
+        [barcodeScanRes, barcodeScanRes]);
+    if (data.length > 0) {
       setState(() {
         product_id = data[0]['product_id'];
         barcodeValue = data[0]['product_code'];
@@ -60,7 +62,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     }
   }
 
-  void saveData() async{
+  void saveData() async {
     final formData = formKey.currentState.value;
     final dTime = new DateTime.now();
     Database db = await widget.databaseHelper.database;
@@ -72,21 +74,30 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     production.production_shift = formData['shift'];
     production.production_remark = formData['remark'];
     production.production_qty = int.parse(formData['quantity']);
-    production.production_time = new DateFormat("yyyy-MM-dd HH:mm:ss").format(dTime);
-    production.production_code = randomAlpha(3) + new DateFormat("ddHHmm").format(dTime);
+    production.production_time =
+        new DateFormat("yyyy-MM-dd HH:mm:ss").format(dTime);
+    production.production_code =
+        randomAlpha(3) + new DateFormat("ddHHmm").format(dTime);
     production.production_sync = 0;
-    int production_id = await widget.databaseHelper.insert(production.tableName, production.toMap());
-    if(production_id > 0){
+    int production_id = await widget.databaseHelper
+        .insert(production.tableName, production.toMap());
+    if (production_id > 0) {
       // check quantity in production store exist or not
-      final check = await db.rawQuery("SELECT * FROM area_product_qty "
-          "WHERE warehouse_id = 1 AND product_id = ? ", [product_id]);
-      if(check.length == 0){
-        await db.rawInsert('INSERT INTO area_product_qty(warehouse_id, area_id, product_id, quantity) VALUES(1, 0, ?, ?)', [product_id, int.parse(formData['quantity'])]);
-      }else{
+      final check = await db.rawQuery(
+          "SELECT * FROM area_product_qty "
+          "WHERE warehouse_id = 1 AND product_id = ? ",
+          [product_id]);
+      if (check.length == 0) {
+        await db.rawInsert(
+            'INSERT INTO area_product_qty(warehouse_id, area_id, product_id, quantity) VALUES(1, 0, ?, ?)',
+            [product_id, int.parse(formData['quantity'])]);
+      } else {
         AreaProductQtyModel d = AreaProductQtyModel.fromDb(check[0]);
         int qty = d.quantity + int.parse(formData['quantity']);
-        await db.rawQuery("UPDATE area_product_qty SET quantity = ? "
-            "WHERE warehouse_id = 1 AND product_id = ? ", [qty, product_id]);
+        await db.rawQuery(
+            "UPDATE area_product_qty SET quantity = ? "
+            "WHERE warehouse_id = 1 AND product_id = ? ",
+            [qty, product_id]);
       }
       Navigator.pop(context);
     }
@@ -96,8 +107,7 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery("SELECT line_id, line_name "
         "FROM line WHERE line_deleted_at IS NULL "
-        "ORDER BY line_name ASC"
-    );
+        "ORDER BY line_name ASC");
     setState(() {
       lineData = data;
     });
@@ -126,11 +136,12 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                               child: FormBuilderTextField(
                                 attribute: "product_id",
                                 controller: productController,
-                                decoration: InputDecoration(labelText: "Product"),
+                                decoration:
+                                    InputDecoration(labelText: "Product"),
                                 readOnly: false,
                                 validators: [
-                                  (val){
-                                    if(val == 'Scan product'){
+                                  (val) {
+                                    if (val == 'Scan product') {
                                       productController.text = 'Scan product';
                                       return '-';
                                     }
@@ -139,47 +150,58 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                               ),
                             ),
                             InkWell(
-                              onTap: (){
+                              onTap: () {
                                 openScanner();
                               },
-                              child: Icon(FontAwesomeIcons.barcode, size: 65,),
+                              child: Icon(
+                                FontAwesomeIcons.barcode,
+                                size: 65,
+                              ),
                             )
                           ],
                         ),
                         FormBuilderDropdown(
                           attribute: "line_id",
                           decoration: InputDecoration(labelText: "Line"),
-                          validators: [
-                            FormBuilderValidators.required()
-                          ],
-                          items: lineData.length == 0 ? [] : lineData.map((item) => DropdownMenuItem(
-                              value: item['line_id'],
-                              child: Text(item['line_name'].toString())
-                          )).toList(),
+                          validators: [FormBuilderValidators.required()],
+                          items: lineData.length == 0
+                              ? []
+                              : lineData
+                                  .map((item) => DropdownMenuItem(
+                                      value: item['line_id'],
+                                      child:
+                                          Text(item['line_name'].toString())))
+                                  .toList(),
                         ),
                         FormBuilderDropdown(
                           attribute: "shift",
                           decoration: InputDecoration(labelText: "Shift"),
-                          validators: [
-                            FormBuilderValidators.required()
-                          ],
-                          items: [[1, 'A'], [2, 'B'], [3, 'C']]
+                          validators: [FormBuilderValidators.required()],
+                          items: [
+                            [1, 'A'],
+                            [2, 'B'],
+                            [3, 'C']
+                          ]
                               .map((item) => DropdownMenuItem(
-                              value: item[1],
-                              child: Text(item[1].toString())
-                          )).toList(),
+                                  value: item[1],
+                                  child: Text(item[1].toString())))
+                              .toList(),
                         ),
                         FormBuilderDropdown(
                           attribute: "batch",
                           decoration: InputDecoration(labelText: "Lot"),
-                          validators: [
-                            FormBuilderValidators.required()
-                          ],
-                          items: [[1, 'Lot 1'],[2, 'Lot 2'],[3, 'Lot 3'],[4, 'Lot 4'],[5, 'Lot 5']]
+                          validators: [FormBuilderValidators.required()],
+                          items: [
+                            [1, 'Lot 1'],
+                            [2, 'Lot 2'],
+                            [3, 'Lot 3'],
+                            [4, 'Lot 4'],
+                            [5, 'Lot 5']
+                          ]
                               .map((item) => DropdownMenuItem(
-                              value: item[1],
-                              child: Text(item[1].toString())
-                          )).toList(),
+                                  value: item[1],
+                                  child: Text(item[1].toString())))
+                              .toList(),
                         ),
                         FormBuilderTextField(
                           attribute: "quantity",
@@ -195,13 +217,11 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
                           decoration: InputDecoration(labelText: "Remark"),
                           items: ['', '99', '97', '93']
                               .map((item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(item.toString())
-                          )).toList(),
+                                  value: item, child: Text(item.toString())))
+                              .toList(),
                         ),
                       ],
-                    )
-                ),
+                    )),
               ),
             ),
             SizedBox(
@@ -209,16 +229,18 @@ class ProductionOutputAddState extends State<ProductionOutputAddClass>{
               child: RaisedButton(
                 color: Colors.blue,
                 onPressed: () {
-                  if(formKey.currentState.saveAndValidate()) {
+                  if (formKey.currentState.saveAndValidate()) {
                     print(formKey.currentState.value);
                     saveData();
                   }
                 },
-                child: Text('Save', style: TextStyle(color: Colors.white),),
+                child: Text(
+                  'Save',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
-        )
-    );
+        ));
   }
 }
