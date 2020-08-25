@@ -16,7 +16,7 @@ class About extends StatelessWidget {
               children: <Widget>[
                 Image.asset('assets/images/logo.png', width: 150, height: 150,),
                 Center(child: Text("Orbit Application", style: TextStyle( fontSize: 25, fontWeight: FontWeight.bold),),),
-                Center(child: Text("Version : 1.1.0"),),
+                Center(child: Text("Version : 1.2.1"),),
                 Container(height: 20,),
                 Center(child: Text("Aplication to record production and warehouse process in PT. Panasonic Gobel Life Solutions Manufacturing Indonesia.", textAlign: TextAlign.center,),),
                 Divider(),
@@ -41,7 +41,7 @@ class About extends StatelessWidget {
                 ),
                 Divider(),
                 Container(height: 20,),
-                Center(child: Text("Unified Process \u00a9 2019", textAlign: TextAlign.center,),),
+                Center(child: Text("Orbit \u00a9 2020", textAlign: TextAlign.center,),),
                 Center(child: Text("PT. Panasonic Gobel Life Solutions Manufacturing Indonesia", textAlign: TextAlign.center,),),
               ]
             ),

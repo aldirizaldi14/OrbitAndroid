@@ -16,9 +16,11 @@ class WarehouseReceiptState extends State<WarehouseReceiptClass> {
   List listData = [];
   void fetchData() async {
     Database db = await widget.databaseHelper.database;
-    final data = await db.rawQuery("SELECT * "
-        "FROM receipt WHERE receipt_deleted_at IS NULL "
-        "ORDER BY receipt_time DESC"
+    final data = await db.rawQuery("select receipt_id,receipt_code,receipt_time,receiptdet_qty,product_code from  receipt join receiptdet "
+    " on receipt.receipt_id=receiptdet.receiptdet_receipt_id "
+    " JOIN product ON receiptdet.receiptdet_product_id=product.product_id "
+        " WHERE receipt_deleted_at IS NULL "
+        " ORDER BY receipt_time DESC"
     );
     setState(() {
       listData = data;
@@ -63,21 +65,21 @@ class WarehouseReceiptState extends State<WarehouseReceiptClass> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(p['receipt_code'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
+                            Text(p['product_code'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 17),),
                             Text(p['receipt_time'].toString(), style: TextStyle( fontSize: 12),),
                           ],
                         ),
-                        Icon(Icons.keyboard_arrow_right)
+                        Text(p['receiptdet_qty'].toString(), style: TextStyle( fontWeight: FontWeight.bold, fontSize: 20),)
                       ],
                     )
                 ),
-                onTap: () {
+              /*  onTap: () {
                   Navigator.of(context).push(
                       new MaterialPageRoute(builder: (BuildContext context) => new ReceiptDetailClass(receiptId: p['receipt_id']))
                   ).then((value) {
                     fetchData();
                   });
-                },
+                },*/
               ),
             );
           },

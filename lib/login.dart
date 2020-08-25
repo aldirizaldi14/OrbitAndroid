@@ -97,7 +97,7 @@ class LoginState extends State<LoginClass> {
           Container(
               padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
               child: Center(
-                child: Text('Version 1.1.0', style: TextStyle(fontSize: 11),)
+                child: Text('Version 1.2.0', style: TextStyle(fontSize: 11),)
               )
           ),
           Container(
