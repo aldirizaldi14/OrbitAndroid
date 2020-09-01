@@ -19,8 +19,8 @@ import 'package:unified_process/model/transferdet_model.dart';
 import 'package:unified_process/model/warehouse_model.dart';
 import 'package:unified_process/helper/database_helper.dart';
 
-String api_url = "http://192.168.1.19/orbit/public/api/";
-//String api_url = "http://137.40.52.103/up/public/api/";
+//String api_url = "http://192.168.1.19/orbit/public/api/";
+String api_url = "http://137.40.52.103/up/public/api/";
 Future<dynamic> apiLogin(String user, String passw) async {
   try {
     final response = await http
