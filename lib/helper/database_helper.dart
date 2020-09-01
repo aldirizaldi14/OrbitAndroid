@@ -248,7 +248,8 @@ class DatabaseHelper {
         "line_number TEXT,"
         "delivery_created_at TEXT,"
         "delivery_updated_at TEXT,"
-        "delivery_deleted_at TEXT"
+        "delivery_deleted_at TEXT,"
+        "delivery_sync INTEGER"
         ")");
   }
 

@@ -44,25 +44,23 @@ class Delivery309112Model {
       /*'delivery_user_id': delivery_user_id,
       'delivery_server_id': delivery_server_id,*/
       'delivery_created_at': delivery_created_at,
-      'delivery_created_by': delivery_created_by,
       'delivery_updated_at': delivery_updated_at,
-      'delivery_updated_by': delivery_updated_by,
       'delivery_deleted_at': delivery_deleted_at,
       'delivery_sync': delivery_sync,
     };
   }
 
   Delivery309112Model.fromDb(Map<String, dynamic> map)
-      : delivery_id = map['delivery_id'],
+      : delivery_id = map['delivery_id'] is int ? map['delivery_id'] : (map['delivery_id'] == null ? 0 : int.parse(map['delivery_id'])),
         surat_jalan = map['surat_jalan'],
         order_item = map['order_item'],
         schedule_shipdate = map['schedule_shipdate'],
         party_name = map['party_name'],
         address = map['address'],
         on_or_about = map['on_or_about'],
-        unit_selling_price = map['unit_selling_price'],
-        ship_quantity = map['ship_quantity'],
-        ship_quantity_check = map['ship_quantity_check'],
+        unit_selling_price = map['unit_selling_price'] is int ? map['unit_selling_price'] : (map['unit_selling_price'] == null ? 0 : int.parse(map['unit_selling_price'])),
+        ship_quantity = map['ship_quantity'] is int ? map['ship_quantity'] : (map['ship_quantity'] == null ? 0 : int.parse(map['ship_quantity'])),
+        ship_quantity_check = map['ship_quantity_check'] is int ? map['ship_quantity_check'] : (map['ship_quantity_check'] == null ? 0 : int.parse(map['ship_quantity_check'])),
         type_truck = map['type_truck'],
         nopol = map['nopol'],
         driver = map['driver'],
@@ -73,9 +71,7 @@ class Delivery309112Model {
                 : int.parse(map['delivery_user_id'])),
         delivery_server_id = map['delivery_server_id'],*/
         delivery_created_at = map['delivery_created_at'],
-        delivery_created_by = map['delivery_created_by'],
         delivery_updated_at = map['delivery_updated_at'],
-        delivery_updated_by = map['delivery_updated_by'],
         delivery_deleted_at = map['delivery_deleted_at'],
         delivery_sync = map['delivery_sync'] is int
             ? map['delivery_sync']

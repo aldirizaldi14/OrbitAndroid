@@ -116,6 +116,7 @@ class DatalistPickerState extends State<DatalistPickerClass> {
   @override
   initState() {
     super.initState();
+    fetchData();
     //fetchLineData();
     //fetchArea();
   }
@@ -696,16 +697,11 @@ class DatalistPickerState extends State<DatalistPickerClass> {
     });
   }
 
-  void fetchData(int areaId) async {
-    print(areaId);
+  void fetchData() async {
     Database db = await widget.databaseHelper.database;
     final allRows = await db.rawQuery(
-        "SELECT product_code, product_description, quantity FROM area_product_qty "
-        "LEFT JOIN product ON product.product_id = area_product_qty.product_id "
-        "LEFT JOIN area ON area.area_id = area_product_qty.area_id "
-        "LEFT JOIN warehouse ON warehouse.warehouse_id = area_product_qty.warehouse_id "
-        "WHERE area_product_qty.area_id = ? AND quantity > 0",
-        [areaId]);
+        "SELECT surat_jalan, nopol, ship_quantity_check FROM sj_number "
+        "WHERE date(schedule_shipdate) = date('now')");
     print(allRows);
 
     List<TableRow> rows = [];
@@ -719,28 +715,15 @@ class DatalistPickerState extends State<DatalistPickerClass> {
         ),
         Padding(
           padding: EdgeInsets.all(5),
-          child: Text(row['product_code'] ?? ''),
-        ),
-        /*Padding(
-          padding: EdgeInsets.all(5),
-          child: Text(row['quantity'] ?? ''),
-        ),*/
-        Padding(
-          padding: EdgeInsets.all(5),
-          child: Center(child: Text(row['quantity'].toString())),
+          child: Text(row['surat_jalan'] ?? ''),
         ),
         Padding(
           padding: EdgeInsets.all(5),
-          child: Center(
-              child: InkWell(
-            onTap: () {
-              openScanner();
-            },
-            child: Icon(
-              FontAwesomeIcons.barcode,
-              size: 20,
-            ),
-          )),
+          child: Text(row['nopol'].toString())
+        ),
+        Padding(
+          padding: EdgeInsets.all(5),
+          child: Text(row['ship_quantity_check'].toString())
         ),
       ]));
     });
