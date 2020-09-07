@@ -35,10 +35,13 @@ const List<Key> keys = [
 ];
 
 class DeliveryPickerClass extends StatefulWidget {
-  DeliveryPickerClass({Key key, this.userName}) : super(key: key);
+  final String userName;
+  String surat_jalan;
+
+  DeliveryPickerClass({Key key, this.userName, this.surat_jalan }) : super(key: key);
   final String title = 'Checked Picker';
   final DatabaseHelper databaseHelper = DatabaseHelper.instance;
-  final String userName;
+
   @override
   DeliveryPickerState createState() => DeliveryPickerState(userName);
 }
@@ -52,7 +55,9 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
   final GlobalKey<FormBuilderState> formKeya = GlobalKey<FormBuilderState>();
   TextEditingController qrCodeCheckResult = TextEditingController(text: '');
-  TextEditingController qtyCheckResult = TextEditingController(text: '');
+  TextEditingController qtyController = TextEditingController(text: '');
+  TextEditingController qtyCheckController = TextEditingController(text: '');
+
   String qrCodeResult = "Search S/J";
   //String qrCodeCheckResult = "None";
   final kHintTextStyle = TextStyle(
@@ -126,7 +131,7 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
   @override
   initState() {
     super.initState();
-    //fetchLineData();
+    fetchData();
     //fetchArea();
   }
 
@@ -190,33 +195,20 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
     } on PlatformException {
       barcodeScanCheck = 'Failed to get platform version.';
     }
+
     if (!mounted) return;
     Database db = await widget.databaseHelper.database;
     final data = await db.rawQuery(
-        "SELECT area_product_qty.area_id as areaid, product_code, product_description, quantity FROM area_product_qty "
-        "LEFT JOIN product ON product.product_id = area_product_qty.product_id "
-        "LEFT JOIN area ON area.area_id = area_product_qty.area_id "
-        "LEFT JOIN warehouse ON warehouse.warehouse_id = area_product_qty.warehouse_id "
-        "WHERE area_product_qty.area_id = 1 AND product_code = ? AND quantity > 0",
-        [barcodeScanCheck]);
+        "SELECT * FROM sj_number "
+            "WHERE surat_jalan = ? AND order_item = ? ", [widget.surat_jalan, barcodeScanCheck]);
 
     if (data.length > 0) {
-      /*setState(() {
-        qrCodeCheckResult.text = barcodeScanCheck;
-      });*/
       setState(() {
-        product_id = data[0]['product_id'];
-        barcodeValue = data[0]['product_code'].toString();
-        qtyValue = data[0]['quantity'].toString();
+        barcodeValue = data[0]['order_item'].toString();
         qrCodeCheckResult.text = barcodeValue;
-        qtyCheckResult.text = qtyValue;
+        qtyController.text = data[0]['ship_quantity'].toString();
+        qtyCheckController.text = data[0]['ship_quantity'].toString();
       });
-      /*if (data[0]['product_code'] == qrCodeCheckResult.text) {
-        fetchDataBarcode(barcodeValue);
-      } 
-      else {
-        Toast.show("Invalid Product", context);
-      }*/
     } else {
       Toast.show("Invalid Product", context);
     }
@@ -449,6 +441,11 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
                                           ),
                                         ),
                                         onPressed: () {
+                                          setState(() {
+                                            qrCodeCheckResult.text = "";
+                                            qtyController.text = "";
+                                            qtyCheckController.text = "";
+                                          });
                                           showDialog(
                                             context: context,
                                             builder: (context) {
@@ -540,20 +537,6 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
                                                       )
                                                     ],
                                                   ),
-
-                                                  /*Padding(
-                                                  padding: EdgeInsets.all(5),
-                                                  child: Center(
-                                                      child: InkWell(
-                                                    onTap: () {
-                                                      openScannerCheck();
-                                                    },
-                                                    child: Icon(
-                                                      FontAwesomeIcons.barcode,
-                                                      size: 30,
-                                                    ),
-                                                  )),
-                                                ),*/
                                                   Padding(
                                                     padding:
                                                         EdgeInsets.all(10.0),
@@ -567,7 +550,7 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
                                                         right: 10.0),
                                                     child: TextField(
                                                       controller:
-                                                          qtyCheckResult,
+                                                      qtyController,
                                                       style: new TextStyle(
                                                           fontSize: 14.0,
                                                           height: 1.0,
@@ -607,7 +590,7 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
                                                         right: 10.0),
                                                     child: TextField(
                                                       controller:
-                                                          qtyCheckResult,
+                                                          qtyCheckController,
                                                       style: new TextStyle(
                                                           fontSize: 14.0,
                                                           height: 1.0,
@@ -649,7 +632,14 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
                                                             color:
                                                                 Colors.white),
                                                       ),
-                                                      onPressed: () {},
+                                                      onPressed: () async {
+                                                        Database db = await widget.databaseHelper.database;
+                                                        await db.rawQuery(
+                                                            "UPDATE sj_number SET ship_quantity_check = ? "
+                                                                "WHERE surat_jalan = ? AND order_item = ? ", [int.parse(qtyCheckController.text),widget.surat_jalan, qrCodeCheckResult.text]);
+                                                        Navigator.pop(context, true);
+                                                        fetchData();
+                                                      },
                                                     ),
                                                   )
                                                 ],
@@ -743,14 +733,13 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
                                     width: double.infinity,
                                     child: RaisedButton(
                                       color: Colors.blue,
-                                      onPressed: () {
-                                        showDialog(
-                                            context: context,
-                                            builder: (_) => AlertDialog(
-                                                  title: Text('Dialog Title'),
-                                                  content: Text(
-                                                      'This is my content'),
-                                                ));
+                                      onPressed: () async {
+                                        if(await saveData()){
+                                          Toast.show("Save Success", context, duration: Toast.LENGTH_LONG);
+                                          Navigator.pop(context, true);
+                                        }else{
+                                          Toast.show("Please check all data.", context, duration: Toast.LENGTH_LONG);
+                                        }
                                       },
                                       child: Text(
                                         'Save',
@@ -1143,16 +1132,11 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
     });
   }
 
-  void fetchData(int areaId) async {
-    print(areaId);
+  void fetchData() async {
     Database db = await widget.databaseHelper.database;
     final allRows = await db.rawQuery(
-        "SELECT product_code, product_description, quantity FROM area_product_qty "
-        "LEFT JOIN product ON product.product_id = area_product_qty.product_id "
-        "LEFT JOIN area ON area.area_id = area_product_qty.area_id "
-        "LEFT JOIN warehouse ON warehouse.warehouse_id = area_product_qty.warehouse_id "
-        "WHERE area_product_qty.area_id = ? AND quantity > 0",
-        [areaId]);
+        "SELECT order_item, ship_quantity, ship_quantity_check FROM sj_number "
+        "WHERE surat_jalan = ?", [widget.surat_jalan]);
     print(allRows);
 
     List<TableRow> rows = [];
@@ -1166,28 +1150,19 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
         ),
         Padding(
           padding: EdgeInsets.all(5),
-          child: Text(row['product_code'] ?? ''),
-        ),
-        /*Padding(
-          padding: EdgeInsets.all(5),
-          child: Text(row['quantity'] ?? ''),
-        ),*/
-        Padding(
-          padding: EdgeInsets.all(5),
-          child: Center(child: Text(row['quantity'].toString())),
+          child: Text(row['order_item'] ?? ''),
         ),
         Padding(
           padding: EdgeInsets.all(5),
-          child: Center(
-              child: InkWell(
-            onTap: () {
-              openScanner();
-            },
-            child: Icon(
-              FontAwesomeIcons.barcode,
-              size: 20,
-            ),
-          )),
+          child: Center(child: Text(row['ship_quantity'].toString())),
+        ),
+        Padding(
+          padding: EdgeInsets.all(5),
+          child: Center(child: Text(row['ship_quantity_check'].toString())),
+        ),
+        Padding(
+          padding: EdgeInsets.all(5),
+          child: Center(child: Icon((row['ship_quantity_check'] == 0 ? Icons.close : Icons.check))),
         ),
       ]));
     });
@@ -1195,5 +1170,18 @@ class DeliveryPickerState extends State<DeliveryPickerClass> {
       productData = rows;
     });
   }
-  /*tambahan untuk query fetch detail table d/o number dari aldi */
+
+  Future<bool> saveData() async {
+    Database db = await widget.databaseHelper.database;
+    final uncheckedData = await db.rawQuery(
+        "SELECT order_item, ship_quantity, ship_quantity_check FROM sj_number "
+            "WHERE surat_jalan = ? AND ship_quantity_check = 0 ", [widget.surat_jalan]);
+    if(uncheckedData.length > 0){
+      return false;
+    }
+    await db.rawQuery(
+        "UPDATE sj_number SET delivery_sync = 0 "
+            "WHERE surat_jalan = ? ", [widget.surat_jalan]);
+    return true;
+  }
 }

@@ -164,8 +164,6 @@ class DatalistPickerState extends State<DatalistPickerClass> {
       setState(() {
         qrCodeResult = barcodeScanRes;
       });
-      //untuk menampilkan auto load tabel data surat jalan
-      //fetchDataBarcode(qrCodeResult);
     } else {
       Toast.show("Invalid Product", context);
     }
@@ -701,8 +699,9 @@ class DatalistPickerState extends State<DatalistPickerClass> {
     Database db = await widget.databaseHelper.database;
     final allRows = await db.rawQuery(
         "SELECT surat_jalan, nopol, ship_quantity_check FROM sj_number "
-        "WHERE date(schedule_shipdate) = date('now')");
-    print(allRows);
+        " WHERE date(schedule_shipdate) = date('now') "
+        " GROUP BY surat_jalan"
+    );
 
     List<TableRow> rows = [];
     int i = 0;
@@ -713,9 +712,22 @@ class DatalistPickerState extends State<DatalistPickerClass> {
           padding: EdgeInsets.all(5),
           child: Center(child: Text(i.toString())),
         ),
-        Padding(
-          padding: EdgeInsets.all(5),
-          child: Text(row['surat_jalan'] ?? ''),
+        InkWell(
+          child: Padding(
+            padding: EdgeInsets.all(5),
+            child: Text(row['surat_jalan'] ?? ''),
+          ),
+          onTap: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => DeliveryPickerClass(
+                    surat_jalan: row['surat_jalan'],
+                  )),
+            ).then((value) => () {
+              fetchData();
+            });
+          },
         ),
         Padding(
           padding: EdgeInsets.all(5),
@@ -723,7 +735,7 @@ class DatalistPickerState extends State<DatalistPickerClass> {
         ),
         Padding(
           padding: EdgeInsets.all(5),
-          child: Text(row['ship_quantity_check'].toString())
+          child: Center(child: Icon((row['ship_quantity_check'] == 0 ? Icons.close : Icons.check))),
         ),
       ]));
     });
@@ -731,5 +743,4 @@ class DatalistPickerState extends State<DatalistPickerClass> {
       productData = rows;
     });
   }
-  /*tambahan untuk query fetch detail table d/o number dari aldi */
 }
